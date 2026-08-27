@@ -1,0 +1,738 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.7">
+  <!--
+    ============================================================
+    Zaber Nucleus MSR  -  v0.6
+    Colision descompuesta, derivada de la malla real
+    ============================================================
+
+    QUE CAMBIA RESPECTO A v0.5
+    La colision era UN prisma de 384 x 538 x 426 mm = 88.1 litros.
+    El microscopio no es un prisma: tiene base ancha, columna
+    estrecha y cabezal en voladizo. El brazo chocaba contra aire.
+
+    Ahora son 16 cajas obtenidas de la propia malla:
+      1. Rebanado horizontal en 20 franjas.
+      2. Rasterizado de la huella REAL de cada franja (proyeccion
+         de los triangulos, no su bounding box).
+      3. Componentes conexas separadas: base, columna y cabezal
+         salen como solidos distintos.
+      4. Fusion aglomerativa hasta 16 cajas, parando donde el
+         coste de seguir fusionando se dispara.
+
+      volumen prohibido    88.1 L  ->  37.1 L   (-58 %)
+
+    Es CONSERVADOR por construccion: toda celda ocupada de la
+    malla cae dentro de alguna caja, mas 3 mm de margen. Nunca
+    subestima el volumen del equipo.
+
+    ............................................................
+    SDF 1.7, no 1.9
+    Gazebo Classic no sabe convertir de 1.9 y escupia
+    'Unable to convert from SDF version 1.9 to 1.7' en cada
+    arranque. Para Harmonic da igual la version.
+
+    ............................................................
+    CONFIGURACION (nombres de parte extraidos del STEP)
+      platina    X-ASR100B120B     recorrido 100 x 120 mm
+      columna    MTR300A + column_300
+      base       baseplate upright 475 x 275
+      nucleo     MKR025C con X-MOR
+      enfoque    X-LDA025A         recorrido 25 mm
+      objetivos  X-MOR turret, 4 posiciones, adaptador Zeiss
+      filtros    X-FCR, cubos Zeiss
+      ilum.      MLR3A reflejada + MLL1 LED
+      camara     tubo 60N Olympus + TLU-C + C-mount
+
+    COTAS DE LA MALLA
+      ancho (X)          384.27 mm
+      fondo (Y)          537.96 mm
+      alto sobre mesa    425.99 mm
+      bajo el apoyo       91.00 mm   (ver ADVERTENCIA)
+
+    ORIGEN
+      Centro de la huella, en el plano de apoyo. Z = 0 es la
+      superficie de la mesa.
+
+    ............................................................
+    ADVERTENCIA
+    La caja 1 esta ENTERA bajo el plano de la mesa (z de -91 a
+    -50 mm): es el conjunto X-LDA025A. La malla lo confirma, no
+    es un artefacto. Si es real, la mesa necesita rebaje y eso
+    condiciona donde puede ir cada microscopio. Sin verificar
+    con Zaber.
+
+    PENDIENTE
+    Altura del portaobjetos sobre la mesa. No inventada aqui.
+    ============================================================
+  -->
+  <model name="microscopio_msr">
+    <static>true</static>
+    <link name="link">
+      <!-- ===== VISUAL: malla real del STEP =====
+           781k facetas. Escala 0.001 porque la malla esta en mm. -->
+      <visual name="malla_detallada">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/microscopio_visual.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.30 0.30 0.32 1</ambient>
+          <diffuse>0.52 0.53 0.56 1</diffuse>
+          <specular>0.25 0.25 0.28 1</specular>
+        </material>
+      </visual>
+      <!-- ================================================
+           COLISION: 16 cajas
+           Nombradas por la parte que representan.
+           ================================================ -->
+      <!-- Enfoque X-LDA025A, POR DEBAJO de la mesa -->
+      <!-- Placa base 475 x 275 -->
+      <!-- Platina X-ASR100B120B en posicion centrada -->
+      <!-- ================================================
+           BARRIDO DE LA PLATINA
+           Recorrido 100 x 120 mm. La caja col_05 cubre la
+           platina CENTRADA. Si vas a mover la platina con el
+           brazo dentro de la celda, descomenta esta colision:
+           anade el recorrido completo como zona prohibida.
+
+           Mientras este comentada, la secuencia de captura
+           tiene que garantizar que la platina esta quieta y
+           centrada cuando el brazo entra.
+
+      <collision name="col_barrido_platina">
+        <pose>-0.0081 -0.0890 0.0590 0 0 0</pose>
+        <geometry><box><size>0.4780 0.4500 0.0580</size></box></geometry>
+      </collision>
+           ================================================ -->
+      <!-- Envolvente barrida, solo visual -->
+      <!-- Eje optico, verificado en X = 0, Y = 0 -->
+      <collision name="conv_00">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_00.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_01">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_01.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_02">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_02.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_03">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_03.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_04">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_04.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_05">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_05.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_06">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_06.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_07">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_07.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_08">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_08.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_09">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_09.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_10">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_10.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_11">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_11.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_12">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_12.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_13">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_13.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_14">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_14.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_15">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_15.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_16">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_16.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_17">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_17.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_18">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_18.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_19">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_19.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_20">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_20.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_21">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_21.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_22">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_22.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_23">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_23.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_24">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_24.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_25">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_25.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_26">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_26.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_27">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_27.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_28">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_28.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_29">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_29.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_30">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_30.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_31">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_31.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_32">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_32.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_33">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_33.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_34">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_34.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_35">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_35.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_36">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_36.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_37">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_37.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_38">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_38.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_39">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_39.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_40">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_40.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_41">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_41.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_42">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_42.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_43">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_43.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_44">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_44.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_45">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_45.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_46">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_46.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+      <collision name="conv_47">
+        <geometry>
+          <mesh>
+            <uri>model://microscopio_msr/meshes/collision/col_47.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <contact>
+            <collide_bitmask>0x01</collide_bitmask>
+          </contact>
+        </surface>
+      </collision>
+    </link>
+  </model>
+</sdf>

@@ -1,0 +1,105 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <!--
+    ============================================================
+    LAMINILLA PORTAOBJETOS  76 x 26 x 1 mm
+    ============================================================
+
+    Modelo DINAMICO (no static): tiene que poder ser agarrado,
+    levantado y soltado. El origen esta en el centro geometrico.
+
+    ORIENTACION POR DEFECTO: de pie.
+      X = espesor  1 mm
+      Y = ancho   26 mm
+      Z = largo   76 mm
+
+    MASA
+      Vidrio a 2500 kg/m3, volumen 1.976e-6 m3 hasta 4.94 g.
+      Se redondea a 5 g. Inercias calculadas para la caja de pie.
+
+    COLOCACION EN EL ESCURRIDOR
+      Suelo de ranura en z = 10 mm sobre la base del escurridor.
+      Con 10 mm dentro, el centro de la laminilla queda a
+      48 mm sobre la base del escurridor, y su borde superior
+      a 86 mm.
+
+      Escurridor sobre la mesa (z = 0.75):
+        centro de laminilla ..... z = 0.798
+        borde superior .......... z = 0.836
+      Punto de agarre razonable: unos 20 mm por debajo del
+      borde superior hasta z = 0.816
+
+    ============================================================
+    AVISO SOBRE EL AGARRE EN GAZEBO CLASSIC
+    Un objeto de 5 g y 1 mm de espesor sujetado por una pinza de
+    control por posicion tiende a salir disparado por el error de
+    penetracion. Si pasa, la solucion estandar es el plugin
+    gazebo_grasp_fix, que crea un joint fijo virtual mientras hay
+    contacto estable en ambos dedos.
+    ============================================================
+  -->
+  <model name="laminilla">
+    <link name="link">
+
+      <inertial>
+        <mass>0.005</mass>
+        <inertia>
+          <ixx>2.688e-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2.407e-6</iyy>
+          <iyz>0</iyz>
+          <izz>2.820e-7</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box><size>0.001 0.026 0.076</size></box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>1.0</mu>
+              <mu2>1.0</mu2>
+            </ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1e5</kp>
+              <kd>50</kd>
+              <min_depth>0.0002</min_depth>
+              <max_vel>0.01</max_vel>
+            </ode>
+          </contact>
+          <bounce><restitution_coefficient>0</restitution_coefficient></bounce>
+        </surface>
+        <max_contacts>10</max_contacts>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <box><size>0.001 0.026 0.076</size></box>
+        </geometry>
+        <material>
+          <ambient>0.70 0.82 0.85 1</ambient>
+          <diffuse>0.82 0.92 0.95 1</diffuse>
+          <specular>0.4 0.4 0.4 1</specular>
+        </material>
+      </visual>
+
+      <!-- Etiqueta esmerilada, para ver la orientacion de un vistazo -->
+      <visual name="etiqueta">
+        <pose>0 0 0.030 0 0 0</pose>
+        <geometry>
+          <box><size>0.0012 0.026 0.016</size></box>
+        </geometry>
+        <material>
+          <ambient>0.85 0.75 0.35 1</ambient>
+          <diffuse>0.95 0.85 0.45 1</diffuse>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>

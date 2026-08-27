@@ -1,0 +1,162 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <!--
+    Mesa de trabajo — 1.70 m (X) x 1.00 m (Y) x 0.75 m de altura.
+    Todo construido con primitivas <box>: sin mallas, sin dependencias externas.
+
+    PARAMETROS PRINCIPALES (si cambias uno, revisa los comentarios):
+      Largo tablero (X) .... 1.70
+      Ancho tablero (Y) .... 1.00
+      Grosor tablero ....... 0.04
+      Altura total ......... 0.75   -> superficie superior a z = 0.75
+      Seccion de pata ...... 0.05 x 0.05
+      Altura de pata ....... 0.71   = altura_total - grosor_tablero
+      Retranqueo de patas .. 0.05 desde cada borde del tablero
+
+    El origen del modelo (0,0,0) esta en el suelo, en el centro de la mesa.
+  -->
+  <model name="mesa">
+
+    <!--
+      static=true: la mesa es mobiliario fijo. Gazebo la ignora en el solver
+      dinamico (mas rapido y estable) y no necesita masa ni inercia.
+      Si en algun momento quieres que la mesa se pueda volcar o empujar,
+      cambia a false y descomenta el bloque <inertial> de mas abajo.
+    -->
+    <static>true</static>
+
+    <link name="link">
+
+      <!--
+        Bloque inercial: SOLO necesario si pones static=false.
+        Valores para una mesa de ~25 kg tratada como caja solida
+        de 1.70 x 1.00 x 0.75 (aproximacion suficiente para simulacion).
+
+      <inertial>
+        <pose>0 0 0.55 0 0 0</pose>
+        <mass>25.0</mass>
+        <inertia>
+          <ixx>3.25</ixx>  <ixy>0</ixy>  <ixz>0</ixz>
+          <iyy>7.19</iyy>  <iyz>0</iyz>
+          <izz>8.10</izz>
+        </inertia>
+      </inertial>
+      -->
+
+      <!-- ============================================================
+           TABLERO
+           Centro en z = 0.73  (0.75 de altura - 0.04/2 de grosor)
+           ============================================================ -->
+      <collision name="tablero_collision">
+        <pose>0 0 0.73 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.70 1.00 0.04</size>
+          </box>
+        </geometry>
+        <surface>
+          <friction>
+            <ode>
+              <mu>0.8</mu>
+              <mu2>0.8</mu2>
+            </ode>
+          </friction>
+        </surface>
+      </collision>
+
+      <visual name="tablero_visual">
+        <pose>0 0 0.73 0 0 0</pose>
+        <geometry>
+          <box>
+            <size>1.70 1.00 0.04</size>
+          </box>
+        </geometry>
+        <material>
+          <ambient>0.62 0.45 0.28 1</ambient>
+          <diffuse>0.72 0.53 0.33 1</diffuse>
+          <specular>0.15 0.15 0.15 1</specular>
+        </material>
+      </visual>
+
+      <!-- ============================================================
+           PATAS
+           Centro en z = 0.355  (0.71 de alto / 2)
+           Posicion X = +/- 0.775   (0.85 - 0.05 retranqueo - 0.025 medio grosor)
+           Posicion Y = +/- 0.425   (0.50 - 0.05 retranqueo - 0.025 medio grosor)
+           ============================================================ -->
+
+      <!-- Pata 1: delantera izquierda -->
+      <collision name="pata_1_collision">
+        <pose>0.775 0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+      </collision>
+      <visual name="pata_1_visual">
+        <pose>0.775 0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.45 0.45 0.48 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Pata 2: delantera derecha -->
+      <collision name="pata_2_collision">
+        <pose>0.775 -0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+      </collision>
+      <visual name="pata_2_visual">
+        <pose>0.775 -0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.45 0.45 0.48 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Pata 3: trasera izquierda -->
+      <collision name="pata_3_collision">
+        <pose>-0.775 0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+      </collision>
+      <visual name="pata_3_visual">
+        <pose>-0.775 0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.45 0.45 0.48 1</diffuse>
+        </material>
+      </visual>
+
+      <!-- Pata 4: trasera derecha -->
+      <collision name="pata_4_collision">
+        <pose>-0.775 -0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+      </collision>
+      <visual name="pata_4_visual">
+        <pose>-0.775 -0.425 0.355 0 0 0</pose>
+        <geometry>
+          <box><size>0.05 0.05 0.71</size></box>
+        </geometry>
+        <material>
+          <ambient>0.35 0.35 0.38 1</ambient>
+          <diffuse>0.45 0.45 0.48 1</diffuse>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>

@@ -1,0 +1,252 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sdf version="1.9">
+  <!--
+    ============================================================
+    CELDA DE DIGITALIZACION - VARIANTE PiPER (AgileX)
+    Rev. 2: racks sustituidos por escurridores de 60 laminas
+    ============================================================
+
+    CAMBIOS RESPECTO A LA REV. 1
+      1. Los dos rack_portaobjetos (266.7 x 330.2 mm) se sustituyen
+         por escurridor_60 (100 x 150 x 20 mm). Se liberan unos
+         73 cm2 por unidad.
+      2. Se incluye UNA laminilla de pie en el escurridor de
+         entrada, como objetivo del primer pick.
+
+    LAS DOS ORIENTACIONES A LA VEZ
+      escurridor_entrada  yaw = 0        ranuras a lo largo de Y
+                                         (perpendiculares al frente)
+      escurridor_salida   yaw = 1.5708   ranuras a lo largo de X
+                                         (paralelas al frente)
+      Miralos en Gazebo y decidimos cual conviene. Lo que cambia
+      es la direccion desde la que el brazo puede meter los dedos
+      sin chocar con las laminas vecinas.
+
+    ============================================================
+    LAMINILLA OBJETIVO
+      escurridor de entrada, ranura x = +4 mm (la 7a de 12)
+      posicion mundo ......... (-0.196, 0.3667, 0.798)
+      borde superior ......... z = 0.836
+      agarre sugerido ........ z = 0.816, pinzado por cantos
+      distancia a la base del brazo (0, 0.14): 296 mm en planta
+
+    Ese valor esta muy dentro del alcance del PiPER. El peor caso
+    de la celda sigue siendo el punto de carga del microscopio a
+    418 mm.
+
+    ============================================================
+    ADVERTENCIAS VIGENTES
+
+    A) CORREDOR
+       Con los escurridores el corredor libre crece respecto a la
+       rev. 1. Recalcularlo cuando se fije la orientacion.
+
+    B) COLISION POR MALLA
+       El escurridor usa el STL como colision. ODE lo trata como
+       trimesh: si el agarre resbala o la fisica se vuelve lenta,
+       cambiar a cajas primitivas.
+
+    C) AGARRE DE OBJETO FINO
+       5 g y 1 mm de espesor. Si la laminilla sale disparada al
+       cerrar la pinza, hace falta gazebo_grasp_fix.
+
+    D) ALCANCE DE FICHA
+       626.75 mm es catalogo, no barrido de cinematica directa.
+    ============================================================
+  -->
+  <world name="celda_piper">
+    <plugin filename="gz-sim-physics-system" name="gz::sim::systems::Physics" />
+    <plugin filename="gz-sim-user-commands-system" name="gz::sim::systems::UserCommands" />
+    <plugin filename="gz-sim-scene-broadcaster-system" name="gz::sim::systems::SceneBroadcaster" />
+    <plugin filename="gz-sim-contact-system" name="gz::sim::systems::Contact" />
+    <physics name="1ms" type="ode">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+    <gravity>0 0 -9.8</gravity>
+    <scene>
+      <ambient>0.55 0.55 0.55 1</ambient>
+      <background>0.76 0.79 0.83 1</background>
+      <shadows>true</shadows>
+    </scene>
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 4 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <direction>-0.4 0.5 -0.8</direction>
+    </light>
+    <light type="point" name="lampara_celda">
+      <pose>0 0.2 2.2 0 0 0</pose>
+      <diffuse>0.55 0.55 0.55 1</diffuse>
+      <attenuation>
+        <range>8</range>
+        <linear>0.2</linear>
+      </attenuation>
+    </light>
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>20 20</size>
+            </plane>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>20 20</size>
+            </plane>
+          </geometry>
+          <material>
+            <ambient>0.45 0.45 0.47 1</ambient>
+            <diffuse>0.55 0.55 0.57 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- ===================== PAREDES ===================== -->
+    <model name="pared_trasera">
+      <static>true</static>
+      <pose>0 -0.55 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>2.20 0.10 2.50</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>2.20 0.10 2.50</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.75 0.75 0.72 1</ambient>
+            <diffuse>0.88 0.88 0.85 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="pared_izquierda">
+      <static>true</static>
+      <pose>-1.1 0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.10 1.20 2.50</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.10 1.20 2.50</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.72 0.72 0.70 1</ambient>
+            <diffuse>0.85 0.85 0.83 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <model name="pared_derecha">
+      <static>true</static>
+      <pose>1.05 0 1.25 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.10 1.20 2.50</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.10 1.20 2.50</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.72 0.72 0.70 1</ambient>
+            <diffuse>0.85 0.85 0.83 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+    <!-- ===================== MESA ===================== -->
+    <include>
+      <uri>model://mesa</uri>
+      <name>mesa</name>
+      <pose>0 0 0 0 0 0</pose>
+    </include>
+    <!-- ===================== MICROSCOPIOS ===================== -->
+    <include>
+      <uri>model://microscopio_msr</uri>
+      <name>microscopio_izq</name>
+      <pose>-0.55 -0.17 0.75 0 0 8.7</pose>
+    </include>
+    <include>
+      <uri>model://microscopio_msr</uri>
+      <name>microscopio_der</name>
+      <pose>0.55 -0.17 0.75 0 0 -8.7</pose>
+    </include>
+    <!-- ===================== ESCURRIDORES =====================
+         Entrada: ranuras a lo largo de Y (yaw = 0)
+         Salida:  ranuras a lo largo de X (yaw = 90 grados)
+         Misma posicion que los racks anteriores para poder
+         comparar distancias sin mover nada mas.
+         ========================================================= -->
+    <include>
+      <uri>model://escurridor_60</uri>
+      <name>escurridor_entrada</name>
+      <pose>-0.20 0.3667 0.75 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://escurridor_60</uri>
+      <name>escurridor_salida</name>
+      <pose>0.20 0.3667 0.75 0 0 1.5708</pose>
+    </include>
+    <!-- ===================== LAMINILLA OBJETIVO =====================
+         De pie en la ranura x = +4 mm del escurridor de entrada.
+         Espesor a lo largo de X, que es como queda alineada con
+         una ranura orientada en Y.
+         ============================================================== -->
+    <include>
+      <uri>model://laminilla</uri>
+      <name>laminilla_01</name>
+      <pose>-0.196 0.3667 0.798 0 0 0</pose>
+    </include>
+    <!-- ===================== BRAZO =====================
+         El PiPER lo inserta ROS via spawn_entity.py.
+         La pose (0, 0.14, 0.75) va en el joint world->base_link
+         del xacro parcheado.
+         ================================================== -->
+    <!-- Placa de montaje del PiPER: patron 70 x 70 mm, base 80 x 95 mm -->
+    <model name="placa_estabilizadora">
+      <static>true</static>
+      <pose>0 0.14 0.754 0 0 0</pose>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.130 0.145 0.008</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.18 0.18 0.20 1</ambient>
+            <diffuse>0.28 0.28 0.31 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+  </world>
+</sdf>

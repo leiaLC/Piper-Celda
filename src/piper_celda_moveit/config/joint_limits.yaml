@@ -1,0 +1,14 @@
+# Limites para el planificador. Deliberadamente por debajo de lo que declara
+# el URDF: en simulacion de layout no interesa la velocidad, interesa poder
+# seguir el movimiento con la vista y que el brazo no sacuda la mesa.
+default_velocity_scaling_factor: 0.3
+default_acceleration_scaling_factor: 0.3
+
+joint_limits:
+  joint1: {has_velocity_limits: true, max_velocity: 2.0, has_acceleration_limits: true, max_acceleration: 3.0}
+  joint2: {has_velocity_limits: true, max_velocity: 2.0, has_acceleration_limits: true, max_acceleration: 3.0}
+  joint3: {has_velocity_limits: true, max_velocity: 2.0, has_acceleration_limits: true, max_acceleration: 3.0}
+  joint4: {has_velocity_limits: true, max_velocity: 2.5, has_acceleration_limits: true, max_acceleration: 4.0}
+  joint5: {has_velocity_limits: true, max_velocity: 2.5, has_acceleration_limits: true, max_acceleration: 4.0}
+  joint6: {has_velocity_limits: true, max_velocity: 2.5, has_acceleration_limits: true, max_acceleration: 4.0}
+  joint7: {has_velocity_limits: true, max_velocity: 0.3, has_acceleration_limits: true, max_acceleration: 1.0}

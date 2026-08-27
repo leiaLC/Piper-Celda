@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!-- ros2_control + plugin gz_ros2_control para Gazebo Harmonic (ROS 2 Jazzy).
+     Nota: en Harmonic el plugin es 'gz_ros2_control-system', NO
+     'gazebo_ros2_control' (eso es Gazebo Classic). -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="piper_gazebo" params="prefix controllers_file">
+
+    <!-- ============ interfaz ros2_control ============ -->
+    <ros2_control name="PiperGazeboSystem" type="system">
+      <hardware>
+        <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+      </hardware>
+
+      <xacro:macro name="joint_pos" params="jname lmin lmax inicial:=0.0">
+        <joint name="${jname}">
+          <command_interface name="position">
+            <param name="min">${lmin}</param>
+            <param name="max">${lmax}</param>
+          </command_interface>
+          <state_interface name="position"><param name="initial_value">${inicial}</param></state_interface>
+          <state_interface name="velocity"/>
+          <state_interface name="effort"/>
+        </joint>
+      </xacro:macro>
+
+      <xacro:joint_pos jname="${prefix}joint1" lmin="-2.618"  lmax="2.618"/>
+      <xacro:joint_pos jname="${prefix}joint2" lmin="0.0"     lmax="3.14"   inicial="0.05"/>
+      <xacro:joint_pos jname="${prefix}joint3" lmin="-2.9671" lmax="0.0"    inicial="-0.05"/>
+      <xacro:joint_pos jname="${prefix}joint4" lmin="-1.57"   lmax="1.57"/>
+      <xacro:joint_pos jname="${prefix}joint5" lmin="-1.57"   lmax="1.57"/>
+      <xacro:joint_pos jname="${prefix}joint6" lmin="-3.14"   lmax="3.14"/>
+      <xacro:joint_pos jname="${prefix}joint7" lmin="0.0"     lmax="0.035"/>
+
+      <!-- joint8 no se comanda: sigue a joint7 por el <mimic> del URDF -->
+      <joint name="${prefix}joint8">
+        <param name="mimic">${prefix}joint7</param>
+        <param name="multiplier">-1</param>
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+
+    <!-- ============ plugin del simulador ============ -->
+    <gazebo>
+      <plugin filename="gz_ros2_control-system"
+              name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+        <parameters>${controllers_file}</parameters>
+        <ros>
+          <namespace>/</namespace>
+        </ros>
+      </plugin>
+    </gazebo>
+
+    <!-- ============ propiedades de contacto ============ -->
+    <!-- Dedos: friccion alta para que la laminilla no resbale -->
+    <xacro:macro name="gz_dedo" params="link">
+      <gazebo reference="${link}">
+        <mu1>1.6</mu1>
+        <mu2>1.6</mu2>
+        <kp>1000000.0</kp>
+        <kd>100.0</kd>
+        <minDepth>0.0005</minDepth>
+        <maxVel>0.0</maxVel>
+        <selfCollide>true</selfCollide>
+      </gazebo>
+    </xacro:macro>
+    <xacro:gz_dedo link="${prefix}Link7"/>
+    <xacro:gz_dedo link="${prefix}Link8"/>
+
+    <xacro:macro name="gz_cuerpo" params="link">
+      <gazebo reference="${link}">
+        <mu1>0.4</mu1>
+        <mu2>0.4</mu2>
+        <selfCollide>true</selfCollide>
+      </gazebo>
+    </xacro:macro>
+    <xacro:gz_cuerpo link="${prefix}base_link"/>
+    <xacro:gz_cuerpo link="${prefix}Link1"/>
+    <xacro:gz_cuerpo link="${prefix}Link2"/>
+    <xacro:gz_cuerpo link="${prefix}Link3"/>
+    <xacro:gz_cuerpo link="${prefix}Link4"/>
+    <xacro:gz_cuerpo link="${prefix}Link5"/>
+    <xacro:gz_cuerpo link="${prefix}Link6"/>
+    <xacro:gz_cuerpo link="${prefix}gripper_base"/>
+
+  </xacro:macro>
+</robot>

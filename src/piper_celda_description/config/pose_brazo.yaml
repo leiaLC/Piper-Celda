@@ -1,0 +1,14 @@
+# Pose de la base del brazo sobre la placa estabilizadora.
+#
+# UNICA FUENTE DE VERDAD. La leen tanto celda_piper.launch.py (Gazebo) como
+# moveit.launch.py (planificador). Antes estaba duplicada entre el launch y
+# los defaults del xacro, y bastaba cambiar uno para que Gazebo y MoveIt
+# discreparan sin avisar: el brazo aparecia girado en una ventana y no en la
+# otra, y los planes eran invalidos sin que nada diera error.
+#
+# Cambia el valor AQUI y los dos lo toman.
+
+x: 0.0
+y: 0.14
+z: 0.754
+yaw: 1.5708      # +90 grados. Antes -1.5708.

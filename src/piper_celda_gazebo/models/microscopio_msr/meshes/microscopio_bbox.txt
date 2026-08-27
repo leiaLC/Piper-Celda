@@ -1,0 +1,22 @@
+MALLA EXPORTADA - COORDENADAS GAZEBO (Z arriba)
+archivo  : /home/leialc/Omica/GazeboWorld/models/microscopio_msr/meshes/microscopio_visual.stl
+facetas  : 1499664
+
+DIMENSIONES en mm
+  X (ancho) :   384.27
+  Y (fondo) :   537.96
+  Z (alto)  :   516.99
+
+DIMENSIONES en metros - para el SDF
+  0.3843  x  0.5380  x  0.5170
+
+RANGOS (mm, origen ya recentrado)
+  X:  -192.13 a   192.13
+  Y:  -268.98 a   268.98
+  Z:     0.00 a   516.99   <- Z=0 es la mesa
+
+En el SDF usar:
+  <mesh>
+    <uri>model://microscopio_msr/meshes/microscopio_visual.stl</uri>
+    <scale>0.001 0.001 0.001</scale>
+  </mesh>

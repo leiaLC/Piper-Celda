@@ -1,0 +1,97 @@
+<?xml version="1.0" ?>
+<sdf version="1.7">
+  <!--
+    ============================================================
+    ESCURRIDOR DE 60 LAMINAS
+    Geometria medida sobre el STL original (unidades mm)
+    ============================================================
+
+    HUELLA        100 x 150 x 20 mm
+    (el rack anterior era 266.7 x 330.2: se libera mucha mesa)
+
+    ESTRUCTURA (de abajo a arriba)
+      z  0 - 5    13 patines de drenaje, paso 13 mm
+      z  5 - 10   placa intermedia perforada
+      z 10 - 20   13 nervios de 4 mm, paso 8 mm
+
+    RANURAS
+      12 ranuras de 4 mm de ancho
+      150 mm de largo (todo el eje Y del modelo)
+      10 mm de profundidad (suelo en z = 10 mm)
+
+      Centros de ranura en X, respecto al origen del modelo:
+        -0.044  -0.036  -0.028  -0.020  -0.012  -0.004
+        +0.004  +0.012  +0.020  +0.028  +0.036  +0.044
+
+    CAPACIDAD
+      12 ranuras x 5 laminas = 60.
+      Cada lamina entra con su ancho de 26 mm a lo largo de la
+      ranura (eje Y), no con su largo.
+
+    GEOMETRIA DE AGARRE (lamina de 76 x 26 x 1 mm)
+      dentro de la ranura ....... 10 mm
+      expuesto por encima ....... 66 mm
+      cara superior de nervios ... z = 20 mm
+
+      Pinzado por CARAS: hueco lateral de 8 mm entre ranuras.
+      Con vecinas puestas, cada dedo tendria que medir menos de 3 mm.
+      Pinzado por CANTOS: ~30 mm libres a lo largo de la ranura.
+      Es la via viable, y coincide con el nido en V previsto.
+
+    ============================================================
+    ORIGEN DEL MODELO
+    El STL viene con la esquina en (-41, -95, 0). El desfase de
+    (-9, +20, 0) mm centra la huella en el origen y deja la base
+    apoyada en z = 0.
+
+    COLISION
+    Malla completa (3276 triangulos). ODE la trata como trimesh:
+    es caro y poco fiable contra objetos finos. Si el agarre
+    resbala, sustituir por cajas primitivas.
+    ============================================================
+  -->
+  <model name="escurridor_60">
+    <static>true</static>
+    <link name="link">
+
+      <collision name="collision">
+        <pose>-0.009 0.020 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://escurridor_60/meshes/escurridor_60.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <surface>
+          <friction>
+            <ode><mu>0.9</mu><mu2>0.9</mu2></ode>
+          </friction>
+          <contact>
+            <ode>
+              <kp>1e6</kp>
+              <kd>100</kd>
+              <min_depth>0.0005</min_depth>
+            </ode>
+          </contact>
+        </surface>
+        <max_contacts>20</max_contacts>
+      </collision>
+
+      <visual name="visual">
+        <pose>-0.009 0.020 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://escurridor_60/meshes/escurridor_60.stl</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <material>
+          <ambient>0.80 0.80 0.82 1</ambient>
+          <diffuse>0.92 0.92 0.94 1</diffuse>
+          <specular>0.2 0.2 0.2 1</specular>
+        </material>
+      </visual>
+
+    </link>
+  </model>
+</sdf>

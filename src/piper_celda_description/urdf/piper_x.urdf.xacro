@@ -1,0 +1,249 @@
+<?xml version="1.0"?>
+<!-- PiPER X para Omica / celda de digitalizacion
+     Derivado de agilexrobotics/piper_isaac_sim (piper_x_description).
+     Cambios respecto al original:
+       - Link7 tenia mass=0 e inercia nula: se le asigno la masa/inercia de Link8.
+       - Colisiones de base_link..Link6 sustituidas por cascos convexos (STL).
+       - joint8 declarado como mimic de joint7 (pinza de un solo grado de libertad).
+       - Anadido ros2_control + plugin gz_ros2_control para Gazebo Harmonic. -->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="piper_x">
+
+  <xacro:arg name="prefix"        default=""/>
+  <xacro:arg name="fijar_a_mundo" default="true"/>
+
+  <!-- Pose de la base sobre la placa estabilizadora. Vive aqui y NO en el
+       spawn de Gazebo: si estuviera solo en el spawn, MoveIt y RViz
+       colocarian base_link en el origen del mundo, es decir 75 cm por
+       debajo de su sitio real, y todos los planes serian invalidos. -->
+  <xacro:arg name="base_x"   default="0.0"/>
+  <xacro:arg name="base_y"   default="0.14"/>
+  <xacro:arg name="base_z"   default="0.754"/>
+  <xacro:arg name="base_yaw" default="1.5708"/>
+  <xacro:arg name="usar_gazebo"   default="true"/>
+  <xacro:arg name="controllers_file"
+             default="$(find piper_celda_description)/config/piper_controllers.yaml"/>
+
+  <xacro:property name="P"    value="$(arg prefix)"/>
+  <xacro:property name="mesh" value="package://piper_celda_description/meshes"/>
+
+  <material name="piper_gris"><color rgba="0.592 0.620 0.651 1"/></material>
+  <material name="piper_claro"><color rgba="0.792 0.820 0.933 1"/></material>
+
+  <!-- ===================== macro de link ===================== -->
+  <xacro:macro name="piper_link"
+               params="name visual_mesh col_mesh mass ixx ixy ixz iyy iyz izz
+                       cx cy cz material:=piper_gris">
+    <link name="${P}${name}">
+      <inertial>
+        <origin xyz="${cx} ${cy} ${cz}" rpy="0 0 0"/>
+        <mass value="${mass}"/>
+        <inertia ixx="${ixx}" ixy="${ixy}" ixz="${ixz}"
+                 iyy="${iyy}" iyz="${iyz}" izz="${izz}"/>
+      </inertial>
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><mesh filename="${mesh}/dae/${visual_mesh}"/></geometry>
+        <material name="${material}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><mesh filename="${mesh}/${col_mesh}"/></geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <!-- ===================== links ===================== -->
+  <xacro:piper_link name="base_link" visual_mesh="base_Link.dae"
+      col_mesh="collision/base_Link_col.stl"
+      mass="0.47421" cx="-0.0085443" cy="4.8839E-05" cz="0.044762"
+      ixx="0.00044509" ixy="5.5896E-07" ixz="1.9736E-05"
+      iyy="0.00049109" iyz="7.1578E-07" izz="0.00055319"/>
+
+  <xacro:piper_link name="Link1" visual_mesh="J1.dae"
+      col_mesh="collision/J1_col.stl"
+      mass="0.16975" cx="0.0011378" cy="-0.0021698" cz="-0.014112"
+      ixx="6.466E-05" ixy="7.2374E-07" ixz="5.1556E-08"
+      iyy="8.8951E-05" iyz="1.0827E-07" izz="8.3142E-05"/>
+
+  <xacro:piper_link name="Link2" visual_mesh="J2.dae"
+      col_mesh="collision/J2_col.stl"
+      mass="0.37783" cx="0.21036" cy="-0.01651" cz="0.0015283"
+      ixx="0.00022199" ixy="3.2631E-05" ixz="-6.2643E-06"
+      iyy="0.0019854" iyz="-3.0109E-06" izz="0.0020664"/>
+
+  <xacro:piper_link name="Link3" visual_mesh="J3.dae"
+      col_mesh="collision/J3_col.stl"
+      mass="0.27675" cx="0.13372" cy="0.0056503" cz="-0.0017736"
+      ixx="6.5229E-05" ixy="-1.7096E-05" ixz="1.6598E-06"
+      iyy="0.00069125" iyz="4.6595E-07" izz="0.00071096"/>
+
+  <xacro:piper_link name="Link4" visual_mesh="J4.dae"
+      col_mesh="collision/J4_col.stl"
+      mass="0.24897" cx="-9.8138E-05" cy="0.0091448" cz="-0.0074148"
+      ixx="0.00010825" ixy="-1.1332E-07" ixz="-1.6006E-07"
+      iyy="9.5266E-05" iyz="1.0192E-05" izz="7.4372E-05"/>
+
+  <xacro:piper_link name="Link5" visual_mesh="J5.dae"
+      col_mesh="collision/J5_col.stl"
+      mass="0.13733" cx="-2.6114E-05" cy="0.0075049" cz="-0.0032612"
+      ixx="4.4535E-05" ixy="-1.884E-08" ixz="-6.2461E-09"
+      iyy="2.8107E-05" iyz="3.0961E-06" izz="4.1969E-05"/>
+
+  <xacro:piper_link name="Link6" visual_mesh="J6.dae"
+      col_mesh="collision/J6_col.stl"
+      mass="0.013863" cx="-0.00012671" cy="0.00012415" cz="-0.021146"
+      ixx="4.9179E-06" ixy="-1.7178E-09" ixz="-4.0674E-09"
+      iyy="4.899E-06" iyz="3.874E-09" izz="6.0181E-06"/>
+
+  <!-- Cuerpo de la pinza. El URDF de la variante X lo omite por completo: monta
+       los dedos flotando directamente sobre Link6, dejando un hueco de 33 mm.
+       La malla viene de la descripcion canonica (piper_description/gripper_base.STL),
+       que si lo modela. Rotada 90 grados en z para alinearla con la convencion X. -->
+  <link name="${P}gripper_base">
+    <inertial>
+      <origin xyz="-0.0000805 -0.000184 0.032144" rpy="0 0 0"/>
+      <mass value="0.45"/>
+      <inertia ixx="0.00030945" ixy="0.0" ixz="0.0"
+               iyy="0.00048471" iyz="0.0" izz="0.00035616"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="${mesh}/extra/gripper_base.stl"/></geometry>
+      <material name="piper_gris"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 1.5708"/>
+      <geometry><mesh filename="${mesh}/collision/gripper_base_col.stl"/></geometry>
+    </collision>
+  </link>
+
+  <joint name="${P}joint_gripper_base" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="${P}Link6"/><child link="${P}gripper_base"/>
+  </joint>
+
+  <!-- Dedos. El URDF original daba a Link7 mass=0 con inercia toda en cero,
+       lo que hace que Gazebo lo rechace o lo vuelva inestable. Se le asigna la
+       masa e inercia de Link8, que es su espejo. -->
+  <link name="${P}Link7">
+    <inertial>
+      <origin xyz="0.00027782 -0.046767 -0.0092103" rpy="0 0 0"/>
+      <mass value="0.026482"/>
+      <inertia ixx="9.9978E-06" ixy="1.5754E-07" ixz="2.7137E-08"
+               iyy="6.1795E-06" iyz="-1.5894E-06" izz="1.4210E-05"/>
+    </inertial>
+    <visual>
+      <geometry><mesh filename="${mesh}/dae/J7.dae"/></geometry>
+      <material name="piper_claro"/>
+    </visual>
+    <collision>
+      <geometry><mesh filename="${mesh}/dae/J7.dae"/></geometry>
+    </collision>
+  </link>
+
+  <link name="${P}Link8">
+    <inertial>
+      <origin xyz="0.00027782 0.046767 -0.0092103" rpy="0 0 0"/>
+      <mass value="0.026482"/>
+      <inertia ixx="9.9978E-06" ixy="-1.5754E-07" ixz="2.7137E-08"
+               iyy="6.1795E-06" iyz="1.5894E-06" izz="1.4210E-05"/>
+    </inertial>
+    <visual>
+      <geometry><mesh filename="${mesh}/extra/J8_limpio.stl"/></geometry>
+      <material name="piper_claro"/>
+    </visual>
+    <collision>
+      <geometry><mesh filename="${mesh}/extra/J8_limpio.stl"/></geometry>
+    </collision>
+  </link>
+
+  <!-- TCP entre los dedos: es el frame que planifica MoveIt -->
+  <link name="${P}tcp"/>
+
+  <!-- ===================== joints ===================== -->
+  <joint name="${P}joint1" type="revolute">
+    <origin xyz="0 0 0.123" rpy="0 0 0"/>
+    <parent link="${P}base_link"/><child link="${P}Link1"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.618" upper="2.618" effort="100" velocity="3.0"/>
+    <dynamics damping="0.5" friction="0.1"/>
+  </joint>
+
+  <joint name="${P}joint2" type="revolute">
+    <origin xyz="0 0 0" rpy="1.5708 -0.13586 3.1416"/>
+    <parent link="${P}Link1"/><child link="${P}Link2"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="3.14" effort="100" velocity="3.0"/>
+    <dynamics damping="0.5" friction="0.1"/>
+  </joint>
+
+  <joint name="${P}joint3" type="revolute">
+    <origin xyz="0.28503 0 0" rpy="0 0 2.8377"/>
+    <parent link="${P}Link2"/><child link="${P}Link3"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-2.9671" upper="0" effort="100" velocity="3.0"/>
+    <dynamics damping="0.5" friction="0.1"/>
+  </joint>
+
+  <joint name="${P}joint4" type="revolute">
+    <origin xyz="0.27264 0 0" rpy="0 0 0.075129"/>
+    <parent link="${P}Link3"/><child link="${P}Link4"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="100" velocity="3.0"/>
+    <dynamics damping="0.3" friction="0.1"/>
+  </joint>
+
+  <joint name="${P}joint5" type="revolute">
+    <origin xyz="0.076857 0.00062395 0" rpy="-1.5708 0 0"/>
+    <parent link="${P}Link4"/><child link="${P}Link5"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-1.57" upper="1.57" effort="100" velocity="3.0"/>
+    <dynamics damping="0.3" friction="0.1"/>
+  </joint>
+
+  <joint name="${P}joint6" type="revolute">
+    <origin xyz="0.035 0 0" rpy="1.5708 0 1.5708"/>
+    <parent link="${P}Link5"/><child link="${P}Link6"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-3.14" upper="3.14" effort="100" velocity="3.0"/>
+    <dynamics damping="0.3" friction="0.1"/>
+  </joint>
+
+  <joint name="${P}joint7" type="prismatic">
+    <origin xyz="0 0 0.13503" rpy="1.5708 0 1.5708"/>
+    <parent link="${P}Link6"/><child link="${P}Link7"/>
+    <axis xyz="0 0 -1"/>
+    <limit lower="0" upper="0.035" effort="60" velocity="0.5"/>
+    <dynamics damping="10.0" friction="1.0"/>
+  </joint>
+
+  <!-- Dedo espejo: la pinza tiene un solo grado de libertad real -->
+  <joint name="${P}joint8" type="prismatic">
+    <origin xyz="0 0 0.13503" rpy="-1.5708 0 1.5708"/>
+    <parent link="${P}Link6"/><child link="${P}Link8"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="-0.035" upper="0" effort="60" velocity="0.5"/>
+    <mimic joint="${P}joint7" multiplier="-1" offset="0"/>
+    <dynamics damping="10.0" friction="1.0"/>
+  </joint>
+
+  <joint name="${P}joint_tcp" type="fixed">
+    <origin xyz="0 0 0.145" rpy="0 0 0"/>
+    <parent link="${P}Link6"/><child link="${P}tcp"/>
+  </joint>
+
+  <xacro:if value="$(arg fijar_a_mundo)">
+    <link name="world"/>
+    <joint name="${P}anclaje_mundo" type="fixed">
+      <parent link="world"/><child link="${P}base_link"/>
+      <origin xyz="$(arg base_x) $(arg base_y) $(arg base_z)"
+              rpy="0 0 $(arg base_yaw)"/>
+    </joint>
+  </xacro:if>
+
+  <xacro:if value="$(arg usar_gazebo)">
+    <xacro:include filename="$(find piper_celda_description)/urdf/piper_x.gazebo.xacro"/>
+    <xacro:piper_gazebo prefix="$(arg prefix)" controllers_file="$(arg controllers_file)"/>
+  </xacro:if>
+
+</robot>

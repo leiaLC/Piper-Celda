@@ -1,0 +1,122 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /MotionPlanning1
+      Splitter Ratio: 0.5
+    Tree Height: 620
+  - Class: rviz_common/Views
+    Name: Views
+  - Class: moveit_rviz_plugin/MotionPlanning - Trajectory Slider
+    Name: Trajectory Slider
+
+Visualization Manager:
+  Class: ""
+  Name: root
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: world
+    Frame Rate: 30
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 0.25
+      Plane Cell Count: 12
+      Color: 90; 90; 90
+      Alpha: 0.4
+      Reference Frame: world
+
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: false
+      Marker Scale: 0.15
+      Show Arrows: false
+      Show Names: true
+
+    - Class: moveit_rviz_plugin/MotionPlanning
+      Name: MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      Robot Description: robot_description
+      Planning Scene Topic: /monitored_planning_scene
+      Trajectory Topic: /display_planned_path
+
+      Scene Geometry:
+        Scene Name: celda
+        Show Scene Geometry: true
+        # Alpha por debajo de 1: los 48 cascos convexos del microscopio se
+        # solapan entre si y provocan z-fighting (dos superficies peleando
+        # por el mismo pixel). Con transparencia el parpadeo desaparece.
+        Scene Alpha: 0.75
+        Scene Display Time: 0.01
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+
+      Scene Robot:
+        Show Robot Visual: true
+        Show Robot Collision: false
+        Robot Alpha: 1
+        Attached Body Color: 150; 50; 150
+
+      Planning Request:
+        Planning Group: brazo
+        Query Start State: false
+        Query Goal State: true
+        Show Workspace: false
+        Interactive Marker Size: 0.12
+        Start State Color: 0; 255; 0
+        Goal State Color: 250; 128; 0
+        Colliding Link Color: 255; 0; 0
+        Joint Violation Color: 255; 0; 255
+
+      Planned Path:
+        Show Robot Visual: true
+        Show Robot Collision: false
+        Show Trail: false
+        Loop Animation: false
+        State Display Time: 0.05 s
+        Trajectory Topic: /display_planned_path
+        Robot Alpha: 0.5
+        Interrupt Display: false
+
+      Planning Metrics:
+        Show Joint Torques: false
+        Show Weight Limit: false
+        Show Manipulability: false
+        Show Manipulability Index: false
+
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Name: Current View
+      # Encuadre de la celda: mirando la mesa desde el frente
+      Distance: 2.4
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0.85
+      Pitch: 0.42
+      Yaw: 1.62
+      Near Clip Distance: 0.01
+      Target Frame: world
+
+Window Geometry:
+  Height: 1000
+  Width: 1700
+  Displays:
+    collapsed: false
+  Views:
+    collapsed: false
+  MotionPlanning:
+    collapsed: false
+  MotionPlanning - Trajectory Slider:
+    collapsed: false
