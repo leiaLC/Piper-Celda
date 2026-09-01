@@ -351,6 +351,7 @@ class Escena(Node):
             co.header.frame_id = self.marco
             co.id = nombre
             co.operation = CollisionObject.ADD
+            co.pose.orientation.w = 1.0
             for g, rel in self.geom_relativa[nombre]:
                 t, R = componer(pose, rel)
                 if isinstance(g, SolidPrimitive):
@@ -377,6 +378,9 @@ class Escena(Node):
             co.header.frame_id = self.marco
             co.id = nombre
             co.operation = CollisionObject.ADD
+            # Cuaternion identidad explicito: por defecto viene todo a cero,
+            # que no es una rotacion valida y MoveIt se queja.
+            co.pose.orientation.w = 1.0
             for g, (t, R) in gs:
                 if isinstance(g, SolidPrimitive):
                     co.primitives.append(g)

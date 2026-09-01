@@ -42,13 +42,19 @@ pinza_controller:
   ros__parameters:
     joints:
       - joint7
+      - joint8
     command_interfaces:
       - position
     state_interfaces:
       - position
       - velocity
     allow_nonzero_velocity_at_trajectory_end: true
+    # Tolerancias holgadas a proposito. La pinza trabaja en contacto: al
+    # cerrar sobre la laminilla el dedo se queda corto respecto del comando,
+    # y eso NO es un fallo. Con trajectory=0.02 el controlador abortaba con
+    # "Aborted due to path tolerance violation" antes de terminar de abrir.
     constraints:
-      stopped_velocity_tolerance: 0.05
-      goal_time: 3.0
-      joint7: {trajectory: 0.02, goal: 0.01}
+      stopped_velocity_tolerance: 0.10
+      goal_time: 5.0
+      joint7: {trajectory: 0.20, goal: 0.05}
+      joint8: {trajectory: 0.20, goal: 0.05}

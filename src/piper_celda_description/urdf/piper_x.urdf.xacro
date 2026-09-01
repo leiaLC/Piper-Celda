@@ -4,7 +4,7 @@
      Cambios respecto al original:
        - Link7 tenia mass=0 e inercia nula: se le asigno la masa/inercia de Link8.
        - Colisiones de base_link..Link6 sustituidas por cascos convexos (STL).
-       - joint8 declarado como mimic de joint7 (pinza de un solo grado de libertad).
+       - joint8 comandado explicitamente en espejo de joint7, sin <mimic>.
        - Anadido ros2_control + plugin gz_ros2_control para Gazebo Harmonic. -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="piper_x">
 
@@ -214,17 +214,22 @@
     <parent link="${P}Link6"/><child link="${P}Link7"/>
     <axis xyz="0 0 -1"/>
     <limit lower="0" upper="0.035" effort="60" velocity="0.5"/>
-    <dynamics damping="10.0" friction="1.0"/>
+    <!-- Amortiguamiento y friccion bajos. Con damping=10 y friction=1 el dedo,
+         que pesa 26 g, no llegaba a moverse y el controlador abortaba con
+         violacion de tolerancia de trayectoria. -->
+    <dynamics damping="0.5" friction="0.05"/>
   </joint>
 
-  <!-- Dedo espejo: la pinza tiene un solo grado de libertad real -->
+  <!-- Dedo espejo. Se comanda EXPLICITAMENTE, sin <mimic>: en Jazzy,
+       ros2_control ya lee los mimic del URDF por su cuenta, y declararlos
+       ademas en el bloque ros2_control aplica la restriccion dos veces y
+       deja la pinza bloqueada (el comando llega, el dedo no se mueve). -->
   <joint name="${P}joint8" type="prismatic">
     <origin xyz="0 0 0.13503" rpy="-1.5708 0 1.5708"/>
     <parent link="${P}Link6"/><child link="${P}Link8"/>
     <axis xyz="0 0 1"/>
     <limit lower="-0.035" upper="0" effort="60" velocity="0.5"/>
-    <mimic joint="${P}joint7" multiplier="-1" offset="0"/>
-    <dynamics damping="10.0" friction="1.0"/>
+    <dynamics damping="0.5" friction="0.05"/>
   </joint>
 
   <joint name="${P}joint_tcp" type="fixed">

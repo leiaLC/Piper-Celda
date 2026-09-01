@@ -32,13 +32,9 @@
       <xacro:joint_pos jname="${prefix}joint6" lmin="-3.14"   lmax="3.14"/>
       <xacro:joint_pos jname="${prefix}joint7" lmin="0.0"     lmax="0.035"/>
 
-      <!-- joint8 no se comanda: sigue a joint7 por el <mimic> del URDF -->
-      <joint name="${prefix}joint8">
-        <param name="mimic">${prefix}joint7</param>
-        <param name="multiplier">-1</param>
-        <state_interface name="position"/>
-        <state_interface name="velocity"/>
-      </joint>
+      <!-- joint8 se comanda igual que joint7, con signo contrario. El
+           controlador manda los dos a la vez. -->
+      <xacro:joint_pos jname="${prefix}joint8" lmin="-0.035" lmax="0.0"/>
     </ros2_control>
 
     <!-- ============ plugin del simulador ============ -->

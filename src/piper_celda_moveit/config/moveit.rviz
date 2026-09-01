@@ -1,122 +1,305 @@
 Panels:
   - Class: rviz_common/Displays
+    Help Height: 70
     Name: Displays
     Property Tree Widget:
       Expanded:
         - /Global Options1
         - /MotionPlanning1
+        - /MotionPlanning1/Planning Request1
       Splitter Ratio: 0.5
-    Tree Height: 620
+    Tree Height: 158
   - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
     Name: Views
-  - Class: moveit_rviz_plugin/MotionPlanning - Trajectory Slider
-    Name: Trajectory Slider
-
+    Splitter Ratio: 0.5
 Visualization Manager:
   Class: ""
-  Name: root
+  Displays:
+    - Alpha: 0.4000000059604645
+      Cell Size: 0.25
+      Class: rviz_default_plugins/Grid
+      Color: 90; 90; 90
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 12
+      Reference Frame: world
+      Value: true
+    - Class: rviz_default_plugins/TF
+      Enabled: false
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Marker Scale: 0.15000000596046448
+      Name: TF
+      Show Arrows: false
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
+    - Acceleration_Scaling_Factor: 0.1
+      Class: moveit_rviz_plugin/MotionPlanning
+      Enabled: true
+      Move Group Namespace: ""
+      MoveIt_Allow_Approximate_IK: false
+      MoveIt_Allow_External_Program: false
+      MoveIt_Allow_Replanning: false
+      MoveIt_Allow_Sensor_Positioning: false
+      MoveIt_Planning_Attempts: 10
+      MoveIt_Planning_Time: 5
+      MoveIt_Use_Cartesian_Path: false
+      MoveIt_Use_Constraint_Aware_IK: false
+      MoveIt_Workspace:
+        Center:
+          X: 0
+          Y: 0
+          Z: 0
+        Size:
+          X: 2
+          Y: 2
+          Z: 2
+      Name: MotionPlanning
+      Planned Path:
+        Color Enabled: false
+        Interrupt Display: false
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          Link1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link8:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          gripper_base:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          tcp:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Loop Animation: false
+        Robot Alpha: 0.5
+        Robot Color: 150; 50; 150
+        Show Robot Collision: false
+        Show Robot Visual: true
+        Show Trail: false
+        State Display Time: 0.05 s
+        Trail Step Size: 1
+        Trajectory Topic: /display_planned_path
+        Use Sim Time: false
+      Planning Metrics:
+        Payload: 1
+        Show Joint Torques: false
+        Show Manipulability: false
+        Show Manipulability Index: false
+        Show Weight Limit: false
+        TextHeight: 0.07999999821186066
+      Planning Request:
+        Colliding Link Color: 255; 0; 0
+        Goal State Alpha: 1
+        Goal State Color: 250; 128; 0
+        Interactive Marker Size: 0.11999999731779099
+        Joint Violation Color: 255; 0; 255
+        Planning Group: brazo
+        Query Goal State: false
+        Query Start State: false
+        Show Workspace: false
+        Start State Alpha: 1
+        Start State Color: 0; 255; 0
+      Planning Scene Topic: /monitored_planning_scene
+      Robot Description: robot_description
+      Scene Geometry:
+        Scene Alpha: 0.75
+        Scene Color: 50; 230; 50
+        Scene Display Time: 0.009999999776482582
+        Show Scene Geometry: true
+        Voxel Coloring: Z-Axis
+        Voxel Rendering: Occupied Voxels
+      Scene Robot:
+        Attached Body Color: 150; 50; 150
+        Links:
+          All Links Enabled: true
+          Expand Joint Details: false
+          Expand Link Details: false
+          Expand Tree: false
+          Link Tree Style: Links in Alphabetic Order
+          Link1:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link2:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link3:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link4:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link5:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link6:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link7:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          Link8:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          base_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          gripper_base:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          tcp:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          world:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+        Robot Alpha: 1
+        Show Robot Collision: false
+        Show Robot Visual: true
+      Value: true
+      Velocity_Scaling_Factor: 0.1
+  Enabled: true
   Global Options:
     Background Color: 48; 48; 48
     Fixed Frame: world
     Frame Rate: 30
-  Displays:
-    - Class: rviz_default_plugins/Grid
-      Name: Grid
-      Enabled: true
-      Cell Size: 0.25
-      Plane Cell Count: 12
-      Color: 90; 90; 90
-      Alpha: 0.4
-      Reference Frame: world
-
-    - Class: rviz_default_plugins/TF
-      Name: TF
-      Enabled: false
-      Marker Scale: 0.15
-      Show Arrows: false
-      Show Names: true
-
-    - Class: moveit_rviz_plugin/MotionPlanning
-      Name: MotionPlanning
-      Enabled: true
-      Move Group Namespace: ""
-      Robot Description: robot_description
-      Planning Scene Topic: /monitored_planning_scene
-      Trajectory Topic: /display_planned_path
-
-      Scene Geometry:
-        Scene Name: celda
-        Show Scene Geometry: true
-        # Alpha por debajo de 1: los 48 cascos convexos del microscopio se
-        # solapan entre si y provocan z-fighting (dos superficies peleando
-        # por el mismo pixel). Con transparencia el parpadeo desaparece.
-        Scene Alpha: 0.75
-        Scene Display Time: 0.01
-        Voxel Coloring: Z-Axis
-        Voxel Rendering: Occupied Voxels
-
-      Scene Robot:
-        Show Robot Visual: true
-        Show Robot Collision: false
-        Robot Alpha: 1
-        Attached Body Color: 150; 50; 150
-
-      Planning Request:
-        Planning Group: brazo
-        Query Start State: false
-        Query Goal State: true
-        Show Workspace: false
-        Interactive Marker Size: 0.12
-        Start State Color: 0; 255; 0
-        Goal State Color: 250; 128; 0
-        Colliding Link Color: 255; 0; 0
-        Joint Violation Color: 255; 0; 255
-
-      Planned Path:
-        Show Robot Visual: true
-        Show Robot Collision: false
-        Show Trail: false
-        Loop Animation: false
-        State Display Time: 0.05 s
-        Trajectory Topic: /display_planned_path
-        Robot Alpha: 0.5
-        Interrupt Display: false
-
-      Planning Metrics:
-        Show Joint Torques: false
-        Show Weight Limit: false
-        Show Manipulability: false
-        Show Manipulability Index: false
-
+  Name: root
   Tools:
     - Class: rviz_default_plugins/MoveCamera
     - Class: rviz_default_plugins/Select
     - Class: rviz_default_plugins/Measure
       Line color: 128; 128; 0
-
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Name: Current View
-      # Encuadre de la celda: mirando la mesa desde el frente
-      Distance: 2.4
+      Distance: 2.4000000953674316
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
       Focal Point:
         X: 0
         Y: 0
-        Z: 0.85
-      Pitch: 0.42
-      Yaw: 1.62
-      Near Clip Distance: 0.01
+        Z: 0.8500000238418579
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.41999998688697815
       Target Frame: world
-
+      Value: Orbit (rviz_default_plugins)
+      Yaw: 1.6200000047683716
+    Saved: ~
 Window Geometry:
-  Height: 1000
-  Width: 1700
   Displays:
     collapsed: false
-  Views:
-    collapsed: false
+  Height: 1011
+  Hide Left Dock: false
+  Hide Right Dock: false
   MotionPlanning:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
+  QMainWindow State: 000000ff00000000fd0000000100000000000002b400000395fc0200000004fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000004400fffffffb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e0067010000003f000001a60000019600fffffffb000000100044006900730070006c00610079007301000001eb00000124000000cc00fffffffb0000000a005600690065007700730100000315000000bf000000a900ffffff000004840000039500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Views:
+    collapsed: false
+  Width: 1854
+  X: 66
+  Y: 32

@@ -7,6 +7,7 @@ install(DIRECTORY config launch DESTINATION share/${PROJECT_NAME})
 install(PROGRAMS
   scripts/publicar_escena_celda.py
   scripts/manipular_laminilla.py
+  scripts/agarrar_laminilla.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

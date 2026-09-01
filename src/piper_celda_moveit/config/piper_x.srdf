@@ -13,6 +13,7 @@
 
   <group name="pinza">
     <joint name="joint7"/>
+    <joint name="joint8"/>
   </group>
 
   <!-- ===================== poses ===================== -->
@@ -38,18 +39,17 @@
 
   <group_state name="abierta" group="pinza">
     <joint name="joint7" value="0.035"/>
+    <joint name="joint8" value="-0.035"/>
   </group_state>
 
   <group_state name="cerrada" group="pinza">
     <joint name="joint7" value="0.0"/>
+    <joint name="joint8" value="0.0"/>
   </group_state>
 
   <!-- ===================== efector ===================== -->
   <end_effector name="efector" parent_link="Link6" group="pinza"
                 parent_group="brazo"/>
-
-  <!-- joint8 sigue a joint7; no se planifica sobre el -->
-  <passive_joint name="joint8"/>
 
   <!-- ===================== colisiones ===================== -->
   <!-- adyacentes -->
