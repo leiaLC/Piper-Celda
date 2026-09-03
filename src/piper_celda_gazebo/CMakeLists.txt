@@ -4,7 +4,7 @@ project(piper_celda_gazebo)
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY launch worlds models config
+  DIRECTORY launch worlds models
   DESTINATION share/${PROJECT_NAME}
 )
 

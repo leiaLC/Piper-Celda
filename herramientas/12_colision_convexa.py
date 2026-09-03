@@ -25,7 +25,8 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-MODELO = Path.home() / "Omica/PiperCelda/src/piper_celda_gazebo/models/microscopio_msr"
+RAIZ = Path(__file__).resolve().parents[1]
+MODELO = RAIZ / "src/piper_celda_gazebo/models/microscopio_msr"
 SDF = MODELO / "model.sdf"
 MALLA = MODELO / "meshes/microscopio_visual.stl"
 DIRCOL = MODELO / "meshes/collision"
@@ -163,7 +164,7 @@ def main():
     print(f"   escrito {SDF}")
 
     print("\nRecompila y relanza:")
-    print("   cd ~/Omica/PiperCelda && colcon build --symlink-install")
+    print("   colcon build --symlink-install   (desde la raiz del proyecto)")
     print("   source install/setup.bash")
     print("   ros2 launch piper_celda_gazebo celda_piper.launch.py")
     print("\nView -> Collisions para comprobar que envuelven la malla.")

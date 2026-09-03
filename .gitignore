@@ -4,3 +4,4 @@ log/
 *.bak
 *.previo*
 *.antes*
+__pycache__/

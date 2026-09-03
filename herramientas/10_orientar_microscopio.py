@@ -16,8 +16,9 @@ import shutil
 import sys
 from pathlib import Path
 
-DESTINO = (Path.home() /
-           "Omica/PiperCelda/src/piper_celda_gazebo/models/microscopio_msr"
+RAIZ = Path(__file__).resolve().parents[1]
+DESTINO = (RAIZ /
+           "src/piper_celda_gazebo/models/microscopio_msr"
            "/meshes/microscopio_visual.stl")
 
 VIEJO = {"ancho": 384.27, "fondo": 537.96, "alto": 425.99}
