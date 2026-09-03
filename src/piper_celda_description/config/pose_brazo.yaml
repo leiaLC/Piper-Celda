@@ -9,6 +9,12 @@
 # Cambia el valor AQUI y los dos lo toman.
 
 x: 0.0
-y: 0.14
+y: 0.135
 z: 0.754
 yaw: 1.5708      # +90 grados. Antes -1.5708.
+
+# y: 0.14 -> 0.135 en la rev. 3 del mundo. El circulo del plano CAD marca el
+# centro de la base a 36.5 cm del borde frontal, o sea y = 0.135. Son 5 mm y
+# no cambian nada funcional, pero la placa del mundo es ahora el disco de
+# 150 mm del plano y conviene que el brazo caiga en su centro.
+# Si algo taras contra la posicion vieja, revierte AQUI y en ningun otro sitio.

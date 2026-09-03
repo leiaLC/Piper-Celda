@@ -8,6 +8,7 @@ install(PROGRAMS
   scripts/publicar_escena_celda.py
   scripts/manipular_laminilla.py
   scripts/agarrar_laminilla.py
+  scripts/probar_alcance.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

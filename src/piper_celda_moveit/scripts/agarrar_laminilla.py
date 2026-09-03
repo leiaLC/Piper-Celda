@@ -1,18 +1,37 @@
 #!/usr/bin/env python3
 """
-Secuencia de agarre de una laminilla por los CANTOS.
+Secuencia de agarre de una laminilla por las CARAS.
 
-Por que por los cantos: en el escurridor las ranuras estan a 8 mm de paso,
-asi que con las vecinas ocupadas no caben dedos entre laminilla y laminilla.
-A lo largo de la ranura quedan ~30 mm libres, y ahi si.
+CAMBIO RESPECTO A LA VERSION DEL ESCURRIDOR
+  El escurridor tenia 8 mm de paso y el espesor de la laminilla iba en X
+  del mundo, asi que el agarre viable era por los cantos. El rack de 90
+  ranuras tiene 6.8 mm de paso y el espesor va en Y, y ahi se invierte
+  todo: por cantos ya no cabe (los tabiques entre columnas dejan 2 mm) y
+  hay que ir por las caras, metiendo el dedo entre vecinas.
 
-Geometria (derivada de los modelos de la celda):
-    laminilla 76 x 26 x 1 mm, de canto, centro en z = 0.798
-    borde superior en z = 0.836
-    punto de agarre 20 mm por debajo -> z = 0.816
-    el espesor de 1 mm va en X (direccion de las ranuras)
-    los 26 mm de ancho van en Y  ->  la pinza cierra a lo largo de Y
+  Los dos cuaterniones de ORIENTACIONES estaban intercambiados para esta
+  celda por ese motivo. Ahora se declaran por el eje del MUNDO sobre el
+  que cierran los dedos, no por herencia del modelo anterior.
+
+Geometria (medida real de Omica, no de catalogo):
+    laminilla 1.1 x 24.7 x 75.8 mm, de pie en el rack
+    espesor 1.1 mm en Y del mundo (direccion de las filas)
+    ancho  24.7 mm en X del mundo
+    centro en z = 0.7899, canto superior en z = 0.8278
     aproximacion vertical: el eje Z del TCP mira hacia -Z del mundo
+
+CUANTO SE PUEDE MORDER
+  Paso 6.8 menos espesor 1.1 = 5.70 mm libres entre vecinas. La mordaza de
+  serie mide 5.01 mm en la punta y crece unos 0.08 mm por mm, llegando a
+  5.70 a los 9.5 mm. Ademas el TCP esta 5 mm MAS ALLA de la punta del dedo,
+  asi que con --bajo-borde b los dedos cubren solo (b - 5) mm de laminilla.
+
+  Con b = 0.013 los dedos cubren 8 mm y ahi miden 5.56: quedan 0.14 mm de
+  margen. Es el maximo practico. Con b = 0.020, que era el valor viejo,
+  cubren 15 mm, miden 6.16 y chocan contra las vecinas.
+
+  O sea: se puede agarrar, pero muy somero. Un rebaje local de 0.5 a 1 mm
+  entre los 9 y los 25 mm de la punta devolveria la mordida profunda.
 
 La secuencia:
     1. abre la pinza
@@ -79,20 +98,29 @@ def cuaternion_a_matriz(x, y, z, w):
     ]
 
 
-# Geometria de la laminilla en el mundo: espesor 1 mm en X (direccion de las
-# ranuras), ancho 26 mm en Y, alto 76 mm en Z.
-ESPESOR = 0.001
-ANCHO = 0.026
+# Laminilla real de Omica. En el RACK: espesor en Y del mundo, ancho en X.
+ESPESOR = 0.0011
+ANCHO = 0.0247
 
 # En las dos orientaciones el eje Z del TCP mira hacia -Z del mundo
 # (aproximacion vertical). Cambia el eje X, que es por donde cierran los dedos.
+#
+# ESTAS DOS ENTRADAS ESTABAN INTERCAMBIADAS para esta celda. Se escribieron
+# para el escurridor_60, donde el espesor iba en X del mundo; en el rack va
+# en Y, asi que el mismo cuaternion hace lo contrario. Se declaran por el
+# eje del MUNDO sobre el que cierran los dedos para que no vuelva a pasar.
+#
+#   quat (r2, r2, 0, 0) -> X del TCP sobre +Y del mundo
+#   quat (1,  0,  0, 0) -> X del TCP sobre +X del mundo
 ORIENTACIONES = {
-    # cierra sobre los 26 mm de ancho; la mordaza apoya en 1 mm de canto
-    "cantos": dict(quat=(math.sqrt(0.5), math.sqrt(0.5), 0.0, 0.0),
-                   semi=ANCHO / 2),
-    # cierra sobre 1 mm de espesor; la mordaza apoya en 26 mm de cara
-    "caras": dict(quat=(1.0, 0.0, 0.0, 0.0),
+    # dedos cierran sobre Y del mundo: aprietan las CARAS de 24.7 x 75.8 y
+    # la mordida vale 1.1 mm de espesor. Unica viable en el rack.
+    "caras": dict(quat=(math.sqrt(0.5), math.sqrt(0.5), 0.0, 0.0),
                   semi=ESPESOR / 2),
+    # dedos cierran sobre X del mundo: aprietan los CANTOS de 24.7 mm.
+    # NO viable con vecinas puestas: los tabiques entre columnas dan 2 mm.
+    "cantos": dict(quat=(1.0, 0.0, 0.0, 0.0),
+                   semi=ANCHO / 2),
 }
 
 
@@ -474,18 +502,22 @@ class Agarre(Node):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--objeto", default="laminilla_01")
+    ap.add_argument("--objeto", default="lam_in_1_c5_f1",
+                    help="nombre del include en el mundo, lam_<rack>_cC_fF")
     ap.add_argument("--aproximacion", type=float, default=0.10,
                     help="altura del preagarre sobre el punto de agarre, m")
     ap.add_argument("--retirada", type=float, default=0.08,
                     help="altura de salida tras cerrar, m")
-    ap.add_argument("--bajo-borde", type=float, default=0.020,
-                    help="cuanto por debajo del borde superior se agarra, m")
-    ap.add_argument("--alto", type=float, default=0.076,
+    ap.add_argument("--bajo-borde", type=float, default=0.013,
+                    help="cuanto por debajo del borde superior se agarra, m. "
+                         "Los dedos cubren (esto - 5 mm) de laminilla, porque "
+                         "el TCP esta 5 mm mas alla de la punta. Por encima de "
+                         "0.0145 el dedo choca con las vecinas")
+    ap.add_argument("--alto", type=float, default=0.0758,
                     help="alto de la laminilla si la escena no lo dice, m")
     ap.add_argument("--orientacion", choices=["caras", "cantos"], default="caras",
-                    help="caras: la mordaza apoya 26 mm. cantos: apoya 1 mm "
-                         "pero cabe con las ranuras vecinas ocupadas")
+                    help="caras: cierra sobre Y del mundo, unica viable en el "
+                         "rack. cantos: cierra sobre X, choca con los tabiques")
     ap.add_argument("--holgura", type=float, default=0.010,
                     help="separacion extra por lado al abrir, m")
     ap.add_argument("--apriete", type=float, default=0.001,
@@ -495,11 +527,12 @@ def main():
     ap.add_argument("--cerrada", type=float, default=None,
                     help="joint7 al cerrar; por defecto se deduce")
     ap.add_argument("--permitir-con", nargs="*",
-                    default=["escurridor_entrada"],
+                    default=["rack_in_1"],
                     help="objetos de la escena que la laminilla puede tocar")
-    ap.add_argument("--contacto", type=float, default=0.035,
-                    help="tramo final sin comprobar colisiones, m. Debe cubrir "
-                         "lo que la laminilla sobresale por encima del agarre")
+    ap.add_argument("--contacto", type=float, default=0.005,
+                    help="tramo final sin comprobar colisiones, m. Corto a "
+                         "proposito: es justo el tramo donde el dedo pasa "
+                         "entre las vecinas, y cegarlo anularia la prueba")
     ap.add_argument("--tolerancia", type=float, default=0.004,
                     help="radio de la esfera de destino, m")
     ap.add_argument("--velocidad", type=float, default=0.2)

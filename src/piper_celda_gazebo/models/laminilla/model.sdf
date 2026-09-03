@@ -2,60 +2,72 @@
 <sdf version="1.7">
   <!--
     ============================================================
-    LAMINILLA PORTAOBJETOS  76 x 26 x 1 mm
+    LAMINILLA PORTAOBJETOS
+    Medida real del material que usa Omica: 1.1 x 24.7 x 75.8 mm
     ============================================================
 
-    Modelo DINAMICO (no static): tiene que poder ser agarrado,
-    levantado y soltado. El origen esta en el centro geometrico.
+    Estas cotas NO son de catalogo ni redondeadas: se midieron sobre las
+    laminillas reales. Las dos normas de portaobjetos que conviven son
+    25x75 y 26x76; el material de Omica cae en la primera, con 24.7 de
+    ancho. No cambiar sin volver a medir.
+
+    Modelo DINAMICO: tiene que poder ser agarrado, levantado y soltado.
+    El origen esta en el centro geometrico.
 
     ORIENTACION POR DEFECTO: de pie.
-      X = espesor  1 mm
-      Y = ancho   26 mm
-      Z = largo   76 mm
+      X = espesor   1.1 mm
+      Y = ancho    24.7 mm
+      Z = largo    75.8 mm
+
+    En el rack, el espesor va en Y del MUNDO y el ancho en X, asi que los
+    includes del mundo llevan yaw = 1.5708. Lo pone 14_poblar_rack.py.
 
     MASA
-      Vidrio a 2500 kg/m3, volumen 1.976e-6 m3 hasta 4.94 g.
-      Se redondea a 5 g. Inercias calculadas para la caja de pie.
+      Vidrio a 2500 kg/m3. Volumen 2.0595e-6 m3 -> 5.15 g.
+      Inercias de caja solida con esas cotas.
 
-    COLOCACION EN EL ESCURRIDOR
-      Suelo de ranura en z = 10 mm sobre la base del escurridor.
-      Con 10 mm dentro, el centro de la laminilla queda a
-      48 mm sobre la base del escurridor, y su borde superior
-      a 86 mm.
+    COLOCACION EN EL RACK
+      ranura de 25.70 x 2.00 mm, suelo a 2 mm sobre la base del rack.
+      Juego: 1.00 mm en ancho, 0.90 mm en espesor.
+      Con 25 mm dentro, el centro queda a 39.9 mm sobre la base del rack
+      y el canto superior a 77.8 mm. Sobresale 50.8 mm sobre la tapa.
 
-      Escurridor sobre la mesa (z = 0.75):
-        centro de laminilla ..... z = 0.798
-        borde superior .......... z = 0.836
-      Punto de agarre razonable: unos 20 mm por debajo del
-      borde superior hasta z = 0.816
+      Rack sobre la mesa (z = 0.75):
+        centro de laminilla ..... z = 0.7899
+        canto superior .......... z = 0.8278
+
+    AGARRE
+      Paso de ranura 6.8 mm menos 1.1 de espesor = 5.70 mm libres.
+      La mordaza de serie del PiPER mide 5.01 mm en la punta y crece unos
+      0.08 mm por mm, llegando a 5.70 a los 9.5 mm. Solo puede morder los
+      ~12 mm superiores. A 20 mm bajo el canto choca con las vecinas.
 
     ============================================================
-    AVISO SOBRE EL AGARRE EN GAZEBO CLASSIC
-    Un objeto de 5 g y 1 mm de espesor sujetado por una pinza de
-    control por posicion tiende a salir disparado por el error de
-    penetracion. Si pasa, la solucion estandar es el plugin
-    gazebo_grasp_fix, que crea un joint fijo virtual mientras hay
-    contacto estable en ambos dedos.
+    AVISO SOBRE EL AGARRE
+    Un objeto de 5 g y 1.1 mm de espesor sujetado por una pinza de control
+    por posicion tiende a salir disparado por el error de penetracion. Si
+    pasa, la solucion estandar es un plugin de agarre que cree un joint
+    fijo virtual mientras hay contacto estable en ambos dedos.
     ============================================================
   -->
   <model name="laminilla">
     <link name="link">
 
       <inertial>
-        <mass>0.005</mass>
+        <mass>0.00515</mass>
         <inertia>
-          <ixx>2.688e-6</ixx>
+          <ixx>2.7270e-06</ixx>
           <ixy>0</ixy>
           <ixz>0</ixz>
-          <iyy>2.407e-6</iyy>
+          <iyy>2.4657e-06</iyy>
           <iyz>0</iyz>
-          <izz>2.820e-7</izz>
+          <izz>2.6228e-07</izz>
         </inertia>
       </inertial>
 
       <collision name="collision">
         <geometry>
-          <box><size>0.001 0.026 0.076</size></box>
+          <box><size>0.0011 0.0247 0.0758</size></box>
         </geometry>
         <surface>
           <friction>
@@ -79,7 +91,7 @@
 
       <visual name="visual">
         <geometry>
-          <box><size>0.001 0.026 0.076</size></box>
+          <box><size>0.0011 0.0247 0.0758</size></box>
         </geometry>
         <material>
           <ambient>0.70 0.82 0.85 1</ambient>
@@ -90,9 +102,9 @@
 
       <!-- Etiqueta esmerilada, para ver la orientacion de un vistazo -->
       <visual name="etiqueta">
-        <pose>0 0 0.030 0 0 0</pose>
+        <pose>0 0 0.0299 0 0 0</pose>
         <geometry>
-          <box><size>0.0012 0.026 0.016</size></box>
+          <box><size>0.0013 0.0247 0.0160</size></box>
         </geometry>
         <material>
           <ambient>0.85 0.75 0.35 1</ambient>

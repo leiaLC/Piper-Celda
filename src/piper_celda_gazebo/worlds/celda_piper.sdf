@@ -3,55 +3,146 @@
   <!--
     ============================================================
     CELDA DE DIGITALIZACION - VARIANTE PiPER (AgileX)
-    Rev. 2: racks sustituidos por escurridores de 60 laminas
+    Rev. 3: distribucion de mesa del plano CAD de Omica
     ============================================================
 
-    CAMBIOS RESPECTO A LA REV. 1
-      1. Los dos rack_portaobjetos (266.7 x 330.2 mm) se sustituyen
-         por escurridor_60 (100 x 150 x 20 mm). Se liberan unos
-         73 cm2 por unidad.
-      2. Se incluye UNA laminilla de pie en el escurridor de
-         entrada, como objetivo del primer pick.
+    CAMBIOS RESPECTO A LA REV. 2
 
-    LAS DOS ORIENTACIONES A LA VEZ
-      escurridor_entrada  yaw = 0        ranuras a lo largo de Y
-                                         (perpendiculares al frente)
-      escurridor_salida   yaw = 1.5708   ranuras a lo largo de X
-                                         (paralelas al frente)
-      Miralos en Gazebo y decidimos cual conviene. Lo que cambia
-      es la direccion desde la que el brazo puede meter los dedos
-      sin chocar con las laminas vecinas.
+      1. <n> -> <name> en todos los <include>.
+         <n> no es SDF. Gazebo lo ignoraba y nombraba las entidades
+         por el nombre del modelo, y publicar_escena_celda.py caia al
+         nombre de la carpeta. Los dos microscopios entraban a MoveIt
+         como el mismo objeto "microscopio_msr" y el segundo pisaba al
+         primero: el planificador solo conocia UN microscopio.
+
+      2. Los dos escurridor_60 se sustituyen por cuatro racks de 90
+         ranuras. El modelo escurridor_60 sigue en models/ pero ya no
+         se usa.
+
+      3. Microscopios de frente. Antes estaban a 8.7 y -8.7 rad,
+         o sea +-138.5 grados.
+
+         RESERVA SOBRE EL VALOR DE yaw
+         Aqui va yaw = pi porque con yaw = 0 se veian mirando a la pared
+         en la simulacion. Pero la malla dice lo contrario: la parte alta
+         de 426 mm esta en -Y del modelo y la placa base desnuda y baja
+         (31 a 66 mm de altura en sus ultimos 90 mm) esta en +Y, que es
+         el patron de un microscopio de frente con yaw = 0.
+         Discriminador: mirar hacia donde apunta esa repisa baja de la
+         placa base. Si apunta a la pared, pi es correcto. Si apunta al
+         operador, volver a 0 y lo que se veia de frente era la columna.
+         Probable causa del lio: herramientas/10_orientar_microscopio.py
+         rota +90 grados sobre X al reexportar desde FreeCAD, que mapea
+         (x,y,z) -> (x,-z,y). Si el frente era +z en FreeCAD, acaba en -Y.
+
+      4. pared_trasera de y = -0.55 a y = -0.63. Ver ADVERTENCIA A.
+
+      5. Paredes laterales simetricas. Estaban en -1.1 y +1.05.
+
+      6. Panel de LEDs en la pared del fondo y boton de operador en el
+         borde frontal de la mesa.
 
     ============================================================
-    LAMINILLA OBJETIVO
-      escurridor de entrada, ranura x = +4 mm (la 7a de 12)
-      posicion mundo ......... (-0.196, 0.3667, 0.798)
-      borde superior ......... z = 0.836
-      agarre sugerido ........ z = 0.816, pinzado por cantos
-      distancia a la base del brazo (0, 0.14): 296 mm en planta
+    SISTEMA DE REFERENCIA
 
-    Ese valor esta muy dentro del alcance del PiPER. El peor caso
-    de la celda sigue siendo el punto de carga del microscopio a
-    418 mm.
+      origen   centro de la mesa, a nivel del suelo
+      +X       a la derecha visto desde el fondo
+      +Y       hacia el OPERADOR (frente)
+      -Y       hacia el fondo (microscopios y pared)
+      z=0.75   superficie del tablero
+
+    Ojo con el signo de Y: el frente es POSITIVO. Es la convencion
+    que ya traia la rev. 1 y se mantiene para no invalidar
+    pose_brazo.yaml ni las poses de los scripts.
 
     ============================================================
-    ADVERTENCIAS VIGENTES
+    COTAS, DEL PLANO CAD (valores en cm del plano -> m aqui)
 
-    A) CORREDOR
-       Con los escurridores el corredor libre crece respecto a la
-       rev. 1. Recalcularlo cuando se fije la orientacion.
+      mesa ................ 1.70 x 1.00, tablero a 0.75
+      microscopios ........ centro en x = +-0.4685, y = -0.210
+      base del brazo ...... x = 0, y = 0.135, circulo de 150 mm
+      racks ............... y = 0.377, a 60 mm del borde frontal
+        rack_in_1  x = +0.32275     rack_out_4  x = -0.32275
+        rack_in_2  x = +0.17825     rack_out_3  x = -0.17825
 
-    B) COLISION POR MALLA
-       El escurridor usa el STL como colision. ODE lo trata como
-       trimesh: si el agarre resbala o la fisica se vuelve lenta,
-       cambiar a cajas primitivas.
+    ZONA IN  = lado +X (grupo izquierdo del plano)
+    ZONA OUT = lado -X
 
-    C) AGARRE DE OBJETO FINO
-       5 g y 1 mm de espesor. Si la laminilla sale disparada al
-       cerrar la pinza, hace falta gazebo_grasp_fix.
+    POR QUE +X ES LA IZQUIERDA
+      En vista en planta el operador esta abajo mirando hacia arriba, asi
+      que su izquierda es la izquierda del papel. Y mirando la celda desde
+      +Y hacia -Y con Z arriba, la derecha de camara es -X, o sea que +X
+      cae a la izquierda de la imagen. Encadenando: izquierda del plano =
+      izquierda del operador = +X.
+      En la rev. 3 estaba al reves y los racks IN salian del lado que no era.
+      Por lo mismo microscopio_izq es el de x = +0.4685, no el de -0.4685.
 
-    D) ALCANCE DE FICHA
-       626.75 mm es catalogo, no barrido de cinematica directa.
+    ESPEJO GEOMETRICO, con identidad de ranura:
+        rack_in_1  ->  rack_out_4      (los dos exteriores)
+        rack_in_2  ->  rack_out_3      (los dos interiores)
+      La laminilla de la ranura (columna C, fila F) de un rack IN va a
+      la ranura (columna C, fila F) del rack OUT emparejado. En el
+      mundo eso NO es una posicion reflejada, y es a proposito: cuando
+      el patologo saque el rack OUT y lo ponga junto al IN sobre una
+      mesa, en la misma orientacion, ranura 1 es ranura 1.
+
+    CAPACIDAD
+      2 racks IN x 90 = 180 laminillas
+      2 racks OUT x 90 = 180 ranuras. Uno a uno, sin sobrante.
+
+    ============================================================
+    ADVERTENCIAS
+
+    A) EL MICROSCOPIO ES MAS PROFUNDO QUE SU CUADRO EN EL PLANO
+       (con yaw = pi el voladizo trasero desaparece: el punto mas
+       atrasado pasa a y = -0.4475, dentro del tablero. La pared se
+       deja igualmente en -0.63 para que el mundo aguante las dos
+       orientaciones mientras se decide el yaw.)
+       El plano dibuja cuadros de 51 x 51 cm. La malla real mide
+       275 x 475 mm de placa base y 337 x 544 mm de envolvente.
+       Con el microscopio centrado donde marca el plano, su punto
+       mas trasero cae en y = -0.5134: 13.4 mm mas alla del borde
+       del tablero, a unos 260 mm de altura. Es un voladizo del
+       brazo de iluminacion, la placa base queda holgada sobre la
+       mesa, asi que no es un problema de vuelco. Pero chocaba con
+       pared_trasera, que tenia la cara interior en -0.50.
+       Por eso la pared se va a -0.63 (cara interior en -0.58,
+       66.6 mm de aire). Confirmar contra la mesa real.
+
+    B) LA MALLA DEL MICROSCOPIO NO ES SIMETRICA EN X
+       Va de -193.7 a +143.7 mm respecto de su origen. Con los dos
+       a yaw 0 el pasillo entre ellos va de -0.3248 a +0.2748:
+       600 mm de ancho, pero centrado en x = -0.025, no en 0.
+       Tenerlo en cuenta al planificar el paso entre microscopios.
+
+    C) COLISION DE LOS RACKS: CAJA ENVOLVENTE
+       Cada rack aporta UNA caja de 144.5 x 125.6 x 27.5 mm. Vale
+       como obstaculo porque el brazo nunca entra al rack: la
+       laminilla sobresale 51 mm y el agarre va unos 31 mm por
+       encima de la tapa.
+       PERO impide meter una laminilla DINAMICA en una ranura: se
+       solaparia con la caja y ODE la expulsaria al arrancar. Por
+       eso este mundo no trae ninguna laminilla dinamica. Para el
+       demo de pick hace falta descomponer el peine en cajas
+       (1 base + 19 nervios en Y + 6 tabiques en X = 26 por rack).
+
+    D) LAS 180 LAMINILLAS SON VISUALES, NO CUERPOS
+       Van dentro del link estatico de rack_laminillas_lleno. Cero
+       coste de fisica y MoveIt ni las ve, porque solo lee
+       <collision>. Es lo que permite tener los racks llenos sin
+       hundir el RTF.
+
+    E) LOS LEDS NO SE ENCIENDEN SOLOS
+       Las esferas son emisivas y siempre se ven. Las <light> que
+       las acompanan si se pueden conmutar en caliente con el
+       servicio /world/celda_piper/light_config. Cuando exista el
+       orquestador esto lo hara el nodo.
+
+    F) PASO DE RANURA 6.8 mm
+       El escurridor daba 8 mm. Este rack da 6.8 con laminilla de 1,
+       o sea 5.8 mm libres para el dedo, y las paredes entre
+       columnas miden 2 mm, asi que el pinzado por cantos ya no es
+       viable con vecinas puestas. Condiciona el rediseno de mordaza.
     ============================================================
   -->
   <world name="celda_piper">
@@ -69,6 +160,7 @@
       <background>0.76 0.79 0.83 1</background>
       <shadows>true</shadows>
     </scene>
+
     <light type="directional" name="sun">
       <cast_shadows>true</cast_shadows>
       <pose>0 0 4 0 0 0</pose>
@@ -84,24 +176,33 @@
         <linear>0.2</linear>
       </attenuation>
     </light>
+
+    <!-- Luces de los tres LEDs. Radio corto para que marquen la pared
+         sin lavar la escena. Son las que conmuta light_config. -->
+    <light type="point" name="led_rojo">
+      <pose>-0.15 -0.545 1.45 0 0 0</pose>
+      <diffuse>0.50 0.02 0.02 1</diffuse>
+      <attenuation><range>0.60</range><linear>0.9</linear><quadratic>1.2</quadratic></attenuation>
+    </light>
+    <light type="point" name="led_ambar">
+      <pose>0 -0.545 1.45 0 0 0</pose>
+      <diffuse>0.50 0.30 0.02 1</diffuse>
+      <attenuation><range>0.60</range><linear>0.9</linear><quadratic>1.2</quadratic></attenuation>
+    </light>
+    <light type="point" name="led_verde">
+      <pose>0.15 -0.545 1.45 0 0 0</pose>
+      <diffuse>0.05 0.50 0.10 1</diffuse>
+      <attenuation><range>0.60</range><linear>0.9</linear><quadratic>1.2</quadratic></attenuation>
+    </light>
+
     <model name="ground_plane">
       <static>true</static>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>20 20</size>
-            </plane>
-          </geometry>
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <plane>
-              <normal>0 0 1</normal>
-              <size>20 20</size>
-            </plane>
-          </geometry>
+          <geometry><plane><normal>0 0 1</normal><size>20 20</size></plane></geometry>
           <material>
             <ambient>0.45 0.45 0.47 1</ambient>
             <diffuse>0.55 0.55 0.57 1</diffuse>
@@ -109,24 +210,20 @@
         </visual>
       </link>
     </model>
-    <!-- ===================== PAREDES ===================== -->
+
+    <!-- ===================== PAREDES =====================
+         Trasera: cara interior en y = -0.58. Ver ADVERTENCIA A.
+         Laterales: simetricas en +-1.10, de y = -0.75 a y = +0.65.
+         ==================================================== -->
     <model name="pared_trasera">
       <static>true</static>
-      <pose>0 -0.55 1.25 0 0 0</pose>
+      <pose>0 -0.63 1.25 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>2.20 0.10 2.50</size>
-            </box>
-          </geometry>
+          <geometry><box><size>2.20 0.10 2.50</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>2.20 0.10 2.50</size>
-            </box>
-          </geometry>
+          <geometry><box><size>2.20 0.10 2.50</size></box></geometry>
           <material>
             <ambient>0.75 0.75 0.72 1</ambient>
             <diffuse>0.88 0.88 0.85 1</diffuse>
@@ -134,23 +231,16 @@
         </visual>
       </link>
     </model>
+
     <model name="pared_izquierda">
       <static>true</static>
-      <pose>-1.1 0 1.25 0 0 0</pose>
+      <pose>-1.10 -0.05 1.25 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.10 1.20 2.50</size>
-            </box>
-          </geometry>
+          <geometry><box><size>0.10 1.40 2.50</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>0.10 1.20 2.50</size>
-            </box>
-          </geometry>
+          <geometry><box><size>0.10 1.40 2.50</size></box></geometry>
           <material>
             <ambient>0.72 0.72 0.70 1</ambient>
             <diffuse>0.85 0.85 0.83 1</diffuse>
@@ -158,23 +248,16 @@
         </visual>
       </link>
     </model>
+
     <model name="pared_derecha">
       <static>true</static>
-      <pose>1.05 0 1.25 0 0 0</pose>
+      <pose>1.10 -0.05 1.25 0 0 0</pose>
       <link name="link">
         <collision name="collision">
-          <geometry>
-            <box>
-              <size>0.10 1.20 2.50</size>
-            </box>
-          </geometry>
+          <geometry><box><size>0.10 1.40 2.50</size></box></geometry>
         </collision>
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>0.10 1.20 2.50</size>
-            </box>
-          </geometry>
+          <geometry><box><size>0.10 1.40 2.50</size></box></geometry>
           <material>
             <ambient>0.72 0.72 0.70 1</ambient>
             <diffuse>0.85 0.85 0.83 1</diffuse>
@@ -182,65 +265,68 @@
         </visual>
       </link>
     </model>
-    <!-- ===================== MESA ===================== -->
+
+    <!-- ===================== MESA =====================
+         1.70 x 1.00 x 0.75. Coincide con el plano sin tocar nada.
+         ================================================ -->
     <include>
       <uri>model://mesa</uri>
       <name>mesa</name>
       <pose>0 0 0 0 0 0</pose>
     </include>
-    <!-- ===================== MICROSCOPIOS ===================== -->
-    <include>
-      <uri>model://microscopio_msr</uri>
-      <name>microscopio_izq</name>
-      <pose>-0.55 -0.17 0.75 0 0 8.7</pose>
-    </include>
+
+    <!-- ===================== MICROSCOPIOS =====================
+         yaw 0 = platina hacia el operador. Ver ADVERTENCIAS A y B.
+         ========================================================= -->
     <include>
       <uri>model://microscopio_msr</uri>
       <name>microscopio_der</name>
-      <pose>0.55 -0.17 0.75 0 0 -8.7</pose>
-    </include>
-    <!-- ===================== ESCURRIDORES =====================
-         Entrada: ranuras a lo largo de Y (yaw = 0)
-         Salida:  ranuras a lo largo de X (yaw = 90 grados)
-         Misma posicion que los racks anteriores para poder
-         comparar distancias sin mover nada mas.
-         ========================================================= -->
-    <include>
-      <uri>model://escurridor_60</uri>
-      <name>escurridor_entrada</name>
-      <pose>-0.20 0.3667 0.75 0 0 0</pose>
+      <pose>-0.4685 -0.21 0.75 0 0 3.14159265</pose>
     </include>
     <include>
-      <uri>model://escurridor_60</uri>
-      <name>escurridor_salida</name>
-      <pose>0.20 0.3667 0.75 0 0 1.5708</pose>
+      <uri>model://microscopio_msr</uri>
+      <name>microscopio_izq</name>
+      <pose>0.4685 -0.21 0.75 0 0 3.14159265</pose>
     </include>
-    <!-- ===================== LAMINILLA OBJETIVO =====================
-         De pie en la ranura x = +4 mm del escurridor de entrada.
-         Espesor a lo largo de X, que es como queda alineada con
-         una ranura orientada en Y.
-         ============================================================== -->
-    <include>
-      <uri>model://laminilla</uri>
-      <name>laminilla_01</name>
-      <pose>-0.196 0.3667 0.798 0 0 0</pose>
-    </include>
-    <!-- ===================== BRAZO =====================
-         El PiPER lo inserta ROS via spawn_entity.py.
-         La pose (0, 0.14, 0.75) va en el joint world->base_link
-         del xacro parcheado.
+
+    <!-- ===================== RACKS =====================
+         Cuatro cuadrantes, y = 0.377, 60 mm del borde frontal.
+         IN llenos (90 laminillas cada uno), OUT vacios.
          ================================================== -->
-    <!-- Placa de montaje del PiPER: patron 70 x 70 mm, base 80 x 95 mm -->
+    <include>
+      <uri>model://rack_laminillas</uri>
+      <name>rack_in_1</name>
+      <pose>0.28775 0.377 0.75 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://rack_laminillas_lleno</uri>
+      <name>rack_in_2</name>
+      <pose>0.14325 0.377 0.75 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://rack_laminillas</uri>
+      <name>rack_out_3</name>
+      <pose>-0.14325 0.377 0.75 0 0 0</pose>
+    </include>
+    <include>
+      <uri>model://rack_laminillas</uri>
+      <name>rack_out_4</name>
+      <pose>-0.28775 0.377 0.75 0 0 0</pose>
+    </include>
+
+    <!-- ===================== BRAZO =====================
+         El PiPER lo inserta ROS via spawn_entity.py. La pose de la
+         base va en el joint world->base_link del xacro, alimentada
+         por config/pose_brazo.yaml.
+         ================================================== -->
+    <!-- Placa de montaje: disco de 150 mm, el circulo del plano.
+         Antes era una caja de 130 x 145 mm. -->
     <model name="placa_estabilizadora">
       <static>true</static>
-      <pose>0 0.14 0.754 0 0 0</pose>
+      <pose>0 0.135 0.754 0 0 0</pose>
       <link name="link">
         <visual name="visual">
-          <geometry>
-            <box>
-              <size>0.130 0.145 0.008</size>
-            </box>
-          </geometry>
+          <geometry><cylinder><radius>0.075</radius><length>0.008</length></cylinder></geometry>
           <material>
             <ambient>0.18 0.18 0.20 1</ambient>
             <diffuse>0.28 0.28 0.31 1</diffuse>
@@ -248,5 +334,556 @@
         </visual>
       </link>
     </model>
+
+    <!-- ===================== PANEL DE LEDS =====================
+         Sobre la pared del fondo, a 1.45 m: por encima de los
+         microscopios (0.75 + 0.426 = 1.176) para que se vean desde
+         cualquier punto de la celda. Ver ADVERTENCIA E.
+
+           rojo   fallo o configuracion invalida   (N8)
+           ambar  celda en espera / acceso concedido al operador
+           verde  ciclo normal en marcha
+         ========================================================== -->
+    <model name="panel_leds">
+      <static>true</static>
+      <pose>0 -0.575 1.45 0 0 0</pose>
+      <link name="link">
+        <visual name="placa">
+          <geometry><box><size>0.44 0.02 0.12</size></box></geometry>
+          <material>
+            <ambient>0.10 0.10 0.11 1</ambient>
+            <diffuse>0.16 0.16 0.18 1</diffuse>
+          </material>
+        </visual>
+        <visual name="led_rojo">
+          <pose>-0.15 0.03 0 0 0 0</pose>
+          <geometry><sphere><radius>0.035</radius></sphere></geometry>
+          <material>
+            <ambient>0.35 0.03 0.03 1</ambient>
+            <diffuse>0.85 0.08 0.08 1</diffuse>
+            <emissive>0.65 0.05 0.05 1</emissive>
+          </material>
+        </visual>
+        <visual name="led_ambar">
+          <pose>0 0.03 0 0 0 0</pose>
+          <geometry><sphere><radius>0.035</radius></sphere></geometry>
+          <material>
+            <ambient>0.38 0.24 0.02 1</ambient>
+            <diffuse>0.95 0.62 0.06 1</diffuse>
+            <emissive>0.75 0.48 0.04 1</emissive>
+          </material>
+        </visual>
+        <visual name="led_verde">
+          <pose>0.15 0.03 0 0 0 0</pose>
+          <geometry><sphere><radius>0.035</radius></sphere></geometry>
+          <material>
+            <ambient>0.05 0.32 0.08 1</ambient>
+            <diffuse>0.12 0.85 0.22 1</diffuse>
+            <emissive>0.08 0.62 0.16 1</emissive>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ===================== BOTON DEL OPERADOR =====================
+         En el borde FRONTAL de la mesa, no en la pared del fondo.
+         Sobre la pared quedaria detras de los dos microscopios, fuera
+         del alcance de quien tiene que pulsarlo.
+         Va a la derecha de los racks OUT (que acaban en x = 0.395) y
+         a 80 mm del borde frontal, donde el brazo no pasa nunca.
+         =============================================================== -->
+    <model name="boton_operador">
+      <static>true</static>
+      <pose>0.62 0.42 0.75 0 0 0</pose>
+      <link name="link">
+        <collision name="collision">
+          <pose>0 0 0.024 0 0 0</pose>
+          <geometry><cylinder><radius>0.035</radius><length>0.048</length></cylinder></geometry>
+        </collision>
+        <visual name="base">
+          <pose>0 0 0.015 0 0 0</pose>
+          <geometry><cylinder><radius>0.035</radius><length>0.030</length></cylinder></geometry>
+          <material>
+            <ambient>0.16 0.16 0.18 1</ambient>
+            <diffuse>0.26 0.26 0.29 1</diffuse>
+          </material>
+        </visual>
+        <visual name="seta">
+          <pose>0 0 0.039 0 0 0</pose>
+          <geometry><cylinder><radius>0.028</radius><length>0.018</length></cylinder></geometry>
+          <material>
+            <ambient>0.40 0.04 0.04 1</ambient>
+            <diffuse>0.88 0.10 0.10 1</diffuse>
+            <specular>0.3 0.3 0.3 1</specular>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- ##### LAMINILLAS_DINAMICAS_INICIO (generado, no editar) ##### -->
+    <!-- 90 laminillas dinamicas en rack_in_1.
+         Generado por herramientas/14_poblar_rack.py.
+         yaw = pi/2 pone el espesor del modelo (su eje X) sobre Y del
+         mundo, que es como van las ranuras de este rack. -->
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f1</name>
+      <pose>0.23235 0.31920 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f2</name>
+      <pose>0.23235 0.32600 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f3</name>
+      <pose>0.23235 0.33280 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f4</name>
+      <pose>0.23235 0.33960 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f5</name>
+      <pose>0.23235 0.34640 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f6</name>
+      <pose>0.23235 0.35320 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f7</name>
+      <pose>0.23235 0.36000 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f8</name>
+      <pose>0.23235 0.36680 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f9</name>
+      <pose>0.23235 0.37360 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f10</name>
+      <pose>0.23235 0.38040 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f11</name>
+      <pose>0.23235 0.38720 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f12</name>
+      <pose>0.23235 0.39400 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f13</name>
+      <pose>0.23235 0.40080 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f14</name>
+      <pose>0.23235 0.40760 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f15</name>
+      <pose>0.23235 0.41440 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f16</name>
+      <pose>0.23235 0.42120 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f17</name>
+      <pose>0.23235 0.42800 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c1_f18</name>
+      <pose>0.23235 0.43480 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f1</name>
+      <pose>0.26005 0.31920 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f2</name>
+      <pose>0.26005 0.32600 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f3</name>
+      <pose>0.26005 0.33280 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f4</name>
+      <pose>0.26005 0.33960 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f5</name>
+      <pose>0.26005 0.34640 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f6</name>
+      <pose>0.26005 0.35320 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f7</name>
+      <pose>0.26005 0.36000 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f8</name>
+      <pose>0.26005 0.36680 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f9</name>
+      <pose>0.26005 0.37360 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f10</name>
+      <pose>0.26005 0.38040 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f11</name>
+      <pose>0.26005 0.38720 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f12</name>
+      <pose>0.26005 0.39400 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f13</name>
+      <pose>0.26005 0.40080 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f14</name>
+      <pose>0.26005 0.40760 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f15</name>
+      <pose>0.26005 0.41440 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f16</name>
+      <pose>0.26005 0.42120 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f17</name>
+      <pose>0.26005 0.42800 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c2_f18</name>
+      <pose>0.26005 0.43480 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f1</name>
+      <pose>0.28775 0.31920 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f2</name>
+      <pose>0.28775 0.32600 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f3</name>
+      <pose>0.28775 0.33280 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f4</name>
+      <pose>0.28775 0.33960 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f5</name>
+      <pose>0.28775 0.34640 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f6</name>
+      <pose>0.28775 0.35320 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f7</name>
+      <pose>0.28775 0.36000 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f8</name>
+      <pose>0.28775 0.36680 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f9</name>
+      <pose>0.28775 0.37360 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f10</name>
+      <pose>0.28775 0.38040 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f11</name>
+      <pose>0.28775 0.38720 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f12</name>
+      <pose>0.28775 0.39400 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f13</name>
+      <pose>0.28775 0.40080 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f14</name>
+      <pose>0.28775 0.40760 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f15</name>
+      <pose>0.28775 0.41440 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f16</name>
+      <pose>0.28775 0.42120 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f17</name>
+      <pose>0.28775 0.42800 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c3_f18</name>
+      <pose>0.28775 0.43480 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f1</name>
+      <pose>0.31545 0.31920 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f2</name>
+      <pose>0.31545 0.32600 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f3</name>
+      <pose>0.31545 0.33280 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f4</name>
+      <pose>0.31545 0.33960 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f5</name>
+      <pose>0.31545 0.34640 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f6</name>
+      <pose>0.31545 0.35320 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f7</name>
+      <pose>0.31545 0.36000 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f8</name>
+      <pose>0.31545 0.36680 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f9</name>
+      <pose>0.31545 0.37360 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f10</name>
+      <pose>0.31545 0.38040 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f11</name>
+      <pose>0.31545 0.38720 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f12</name>
+      <pose>0.31545 0.39400 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f13</name>
+      <pose>0.31545 0.40080 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f14</name>
+      <pose>0.31545 0.40760 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f15</name>
+      <pose>0.31545 0.41440 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f16</name>
+      <pose>0.31545 0.42120 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f17</name>
+      <pose>0.31545 0.42800 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c4_f18</name>
+      <pose>0.31545 0.43480 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f1</name>
+      <pose>0.34315 0.31920 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f2</name>
+      <pose>0.34315 0.32600 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f3</name>
+      <pose>0.34315 0.33280 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f4</name>
+      <pose>0.34315 0.33960 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f5</name>
+      <pose>0.34315 0.34640 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f6</name>
+      <pose>0.34315 0.35320 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f7</name>
+      <pose>0.34315 0.36000 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f8</name>
+      <pose>0.34315 0.36680 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f9</name>
+      <pose>0.34315 0.37360 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f10</name>
+      <pose>0.34315 0.38040 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f11</name>
+      <pose>0.34315 0.38720 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f12</name>
+      <pose>0.34315 0.39400 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f13</name>
+      <pose>0.34315 0.40080 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f14</name>
+      <pose>0.34315 0.40760 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f15</name>
+      <pose>0.34315 0.41440 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f16</name>
+      <pose>0.34315 0.42120 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f17</name>
+      <pose>0.34315 0.42800 0.78990 0 0 1.5708</pose>
+    </include>
+    <include>
+      <uri>model://laminilla</uri>
+      <name>lam_in_1_c5_f18</name>
+      <pose>0.34315 0.43480 0.78990 0 0 1.5708</pose>
+    </include>
+    <!-- ##### LAMINILLAS_DINAMICAS_FIN ##### -->
+
+
+
+
+
+
+
+
+
   </world>
 </sdf>
